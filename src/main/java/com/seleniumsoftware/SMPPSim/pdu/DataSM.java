@@ -1,14 +1,13 @@
 package com.seleniumsoftware.SMPPSim.pdu;
 
+import com.seleniumsoftware.SMPPSim.pdu.util.PduUtilities;
+import org.slf4j.LoggerFactory;
+
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Logger;
-
-import com.seleniumsoftware.SMPPSim.pdu.util.PduUtilities;
-import org.slf4j.LoggerFactory;
 
 /****************************************************************************
  * DataSM
@@ -39,36 +38,24 @@ import org.slf4j.LoggerFactory;
 
 public class DataSM extends Request implements Demarshaller, Marshaller {
 
-//	private static Logger logger = Logger
+	//	private static Logger logger = Logger
 //			.getLogger("com.seleniumsoftware.smppsim");
-    private static org.slf4j.Logger logger = LoggerFactory.getLogger(DataSM.class);
-
+	private static org.slf4j.Logger logger = LoggerFactory.getLogger(DataSM.class);
+	// output
+	ByteArrayOutputStream out;
 	// Mandatory PDU attributes
 	private String service_type;
-
 	private int source_addr_ton;
-
 	private int source_addr_npi;
-
 	private String source_addr;
-
 	private int dest_addr_ton;
-
 	private int dest_addr_npi;
-
 	private String destination_addr;
-
 	private int esm_class;
-
 	private int registered_delivery_flag;
-
 	private int data_coding;
-
 	// Optional PDU attributes
 	private HashMap<Short, Tlv> optionalsByTag = new HashMap<Short, Tlv>();
-
-	// output 
-	ByteArrayOutputStream out;
 
 	public DataSM() {
 	}
@@ -94,11 +81,159 @@ public class DataSM extends Request implements Demarshaller, Marshaller {
 		data_coding = msg.getData_coding();
 		// optionnal
 		for (Iterator<Short> it = msg.getOptionnalTags().iterator(); it
-				.hasNext();) {
+				.hasNext(); ) {
 			Short tag = it.next();
 			Tlv opt = msg.getOptionnal(tag.shortValue());
 			optionalsByTag.put(tag, opt);
 		}
+	}
+
+	/**
+	 * @return
+	 */
+	public String getService_type() {
+		return service_type;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getSource_addr_ton() {
+		return source_addr_ton;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getSource_addr_npi() {
+		return source_addr_npi;
+	}
+
+	/**
+	 * @return
+	 */
+	public String getSource_addr() {
+		return source_addr;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getDest_addr_ton() {
+		return dest_addr_ton;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getDest_addr_npi() {
+		return dest_addr_npi;
+	}
+
+	/**
+	 * @return
+	 */
+	public String getDestination_addr() {
+		return destination_addr;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getEsm_class() {
+		return esm_class;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getRegistered_delivery_flag() {
+		return registered_delivery_flag;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getData_coding() {
+		return data_coding;
+	}
+
+	public List<Short> getOptionnalTags() {
+		return new ArrayList<Short>(optionalsByTag.keySet());
+	}
+
+	public Tlv getOptionnal(short aTag) {
+		return optionalsByTag.get(new Short(aTag));
+	}
+
+	/**
+	 * @param i
+	 */
+	public void setData_coding(int i) {
+		data_coding = i;
+	}
+
+	/**
+	 * @param i
+	 */
+	public void setRegistered_delivery_flag(int i) {
+		registered_delivery_flag = i;
+	}
+
+	/**
+	 * @param i
+	 */
+	public void setEsm_class(int i) {
+		esm_class = i;
+	}
+
+	/**
+	 * @param string
+	 */
+	public void setDestination_addr(String string) {
+		destination_addr = string;
+	}
+
+	/**
+	 * @param i
+	 */
+	public void setDest_addr_npi(int i) {
+		dest_addr_npi = i;
+	}
+
+	/**
+	 * @param i
+	 */
+	public void setDest_addr_ton(int i) {
+		dest_addr_ton = i;
+	}
+
+	/**
+	 * @param string
+	 */
+	public void setSource_addr(String string) {
+		source_addr = string;
+	}
+
+	/**
+	 * @param i
+	 */
+	public void setSource_addr_npi(int i) {
+		source_addr_npi = i;
+	}
+
+	/**
+	 * @param i
+	 */
+	public void setSource_addr_ton(int i) {
+		source_addr_ton = i;
+	}
+
+	/**
+	 * @param string
+	 */
+	public void setService_type(String string) {
+		service_type = string;
 	}
 
 	public void demarshall(byte[] request) throws Exception {
@@ -241,6 +376,26 @@ public class DataSM extends Request implements Demarshaller, Marshaller {
 		}
 	}
 
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		sb.append(super.toString() + "," + "service_type=" + service_type + ","
+				+ "source_addr_ton=" + source_addr_ton + ","
+				+ "source_addr_npi=" + source_addr_npi + "," + "source_addr="
+				+ source_addr + "," + "dest_addr_ton=" + dest_addr_ton + ","
+				+ "dest_addr_npi=" + dest_addr_npi + "," + "dest_addr="
+				+ destination_addr + "," + "esm_class=" + esm_class + ","
+				+ "registered_delivery_flag=" + registered_delivery_flag + ","
+				+ "data_coding=" + data_coding);
+
+		if (optionalsByTag.size() > 0) {
+			for (Iterator<Tlv> it = optionalsByTag.values().iterator(); it
+					.hasNext(); ) {
+				sb.append(",").append(it.next().toString());
+			}
+		}
+		return sb.toString();
+	}
+
 	public byte[] marshall() throws Exception {
 		out = new ByteArrayOutputStream();
 		out.reset();
@@ -263,7 +418,7 @@ public class DataSM extends Request implements Demarshaller, Marshaller {
 		out.write(PduUtilities.makeByteArrayFromInt(data_coding, 1));
 
 		for (Iterator<Tlv> it = optionalsByTag.values().iterator(); it
-				.hasNext();) {
+				.hasNext(); ) {
 			Tlv opt = it.next();
 			out.write(PduUtilities.makeByteArrayFromInt(opt.getTag(), 2));
 			out.write(PduUtilities.makeByteArrayFromInt(opt.getLen(), 2));
@@ -276,179 +431,11 @@ public class DataSM extends Request implements Demarshaller, Marshaller {
 		return response;
 	}
 
-	/**
-	 * @return
-	 */
-	public int getData_coding() {
-		return data_coding;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getDest_addr_npi() {
-		return dest_addr_npi;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getDest_addr_ton() {
-		return dest_addr_ton;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getDestination_addr() {
-		return destination_addr;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getEsm_class() {
-		return esm_class;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getRegistered_delivery_flag() {
-		return registered_delivery_flag;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getService_type() {
-		return service_type;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getSource_addr() {
-		return source_addr;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getSource_addr_npi() {
-		return source_addr_npi;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getSource_addr_ton() {
-		return source_addr_ton;
-	}
-
 	public boolean hasOptionnal(short aTag) {
 		return optionalsByTag.containsKey(new Short(aTag));
 	}
 
-	public Tlv getOptionnal(short aTag) {
-		return optionalsByTag.get(new Short(aTag));
-	}
-
-	public List<Short> getOptionnalTags() {
-		return new ArrayList<Short>(optionalsByTag.keySet());
-	}
-
-	/**
-	 * @param i
-	 */
-	public void setData_coding(int i) {
-		data_coding = i;
-	}
-
-	/**
-	 * @param i
-	 */
-	public void setDest_addr_npi(int i) {
-		dest_addr_npi = i;
-	}
-
-	/**
-	 * @param i
-	 */
-	public void setDest_addr_ton(int i) {
-		dest_addr_ton = i;
-	}
-
-	/**
-	 * @param string
-	 */
-	public void setDestination_addr(String string) {
-		destination_addr = string;
-	}
-
-	/**
-	 * @param i
-	 */
-	public void setEsm_class(int i) {
-		esm_class = i;
-	}
-
-	/**
-	 * @param i
-	 */
-	public void setRegistered_delivery_flag(int i) {
-		registered_delivery_flag = i;
-	}
-
-	/**
-	 * @param string
-	 */
-	public void setService_type(String string) {
-		service_type = string;
-	}
-
-	/**
-	 * @param string
-	 */
-	public void setSource_addr(String string) {
-		source_addr = string;
-	}
-
-	/**
-	 * @param i
-	 */
-	public void setSource_addr_npi(int i) {
-		source_addr_npi = i;
-	}
-
-	/**
-	 * @param i
-	 */
-	public void setSource_addr_ton(int i) {
-		source_addr_ton = i;
-	}
-
 	public void setOptionnal(Tlv opt) {
 		optionalsByTag.put(new Short(opt.getTag()), opt);
-	}
-
-	public String toString() {
-		StringBuffer sb = new StringBuffer();
-		sb.append(super.toString() + "," + "service_type=" + service_type + ","
-				+ "source_addr_ton=" + source_addr_ton + ","
-				+ "source_addr_npi=" + source_addr_npi + "," + "source_addr="
-				+ source_addr + "," + "dest_addr_ton=" + dest_addr_ton + ","
-				+ "dest_addr_npi=" + dest_addr_npi + "," + "dest_addr="
-				+ destination_addr + "," + "esm_class=" + esm_class + ","
-				+ "registered_delivery_flag=" + registered_delivery_flag + ","
-				+ "data_coding=" + data_coding);
-
-		if (optionalsByTag.size() > 0) {
-			for (Iterator<Tlv> it = optionalsByTag.values().iterator(); it
-					.hasNext();) {
-				sb.append(",").append(it.next().toString());
-			}
-		}
-		return sb.toString();
 	}
 }

@@ -28,18 +28,20 @@
 package com.seleniumsoftware.SMPPSim;
 
 import com.seleniumsoftware.SMPPSim.exceptions.InvalidHexStringlException;
-import com.seleniumsoftware.SMPPSim.pdu.*;
+import com.seleniumsoftware.SMPPSim.pdu.DeliverSM;
 import com.seleniumsoftware.SMPPSim.util.Utilities;
-
-import java.util.*;
-import java.io.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.util.Vector;
+
 public class MoMessagePool {
 
-    private static Logger logger = LoggerFactory.getLogger(MoMessagePool.class);
-    
+	private static Logger logger = LoggerFactory.getLogger(MoMessagePool.class);
+
 //	private static Logger logger = Logger.getLogger("com.seleniumsoftware.smppsim");
 
 	private Vector<DeliverSM> messages;
@@ -74,10 +76,11 @@ public class MoMessagePool {
 			try {
 				record = messagesReader.readLine();
 				String therecord;
-				if (record == null)
+				if (record == null) {
 					therecord = "null";
-				else
+				} else {
 					therecord = record;
+				}
 				logger.debug("Read from file:<" + therecord + ">");
 				if (record != null) {
 					msg = new DeliverSM();
@@ -121,14 +124,14 @@ public class MoMessagePool {
 				destination_addr = rec.substring(commaIX1 + 1, commaIX2);
 				msg = rec.substring(commaIX2 + 1, rec.length());
 				data_coding = 0;
-				if (!msg.startsWith("0x")) 
+				if (!msg.startsWith("0x")) {
 					short_message = msg.getBytes();
-				else {
+				} else {
 					try {
 						short_message = Utilities.getByteArrayFromHexString(msg.substring(2));
 						data_coding = 4; // binary
 					} catch (InvalidHexStringlException e) {
-						logger.error("Invalid hex string in MO service input file: <"+msg+">. Used as plain text instead.");
+						logger.error("Invalid hex string in MO service input file: <" + msg + ">. Used as plain text instead.");
 						short_message = msg.getBytes();
 					}
 				}

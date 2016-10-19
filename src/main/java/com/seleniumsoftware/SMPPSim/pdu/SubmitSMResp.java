@@ -26,13 +26,12 @@
  ****************************************************************************/
 
 package com.seleniumsoftware.SMPPSim.pdu;
-import com.seleniumsoftware.SMPPSim.*;
-import com.seleniumsoftware.SMPPSim.pdu.util.PduUtilities;
+
+import com.seleniumsoftware.SMPPSim.Smsc;
 
 public class SubmitSMResp extends Response implements Marshaller {
-	private Smsc smsc = Smsc.getInstance();
-	
 	String message_id;
+	private Smsc smsc = Smsc.getInstance();
 
 	public SubmitSMResp(SubmitSM requestMsg) {
 		// message header fields except message length
@@ -44,18 +43,9 @@ public class SubmitSMResp extends Response implements Marshaller {
 		setCmd_len(0);
 
 		// message body
-		message_id = smsc.getMessageID();		
+		message_id = smsc.getMessageID();
 	}
 
-	public byte[] marshall() throws Exception {
-		out.reset();
-		super.prepareHeaderForMarshalling();
-		out.write(PduUtilities.stringToNullTerminatedByteArray(message_id));
-		byte[] response = out.toByteArray();
-		int l = response.length;
-		response = PduUtilities.setPduLength(response, l);
-		return response;
-	}
 	/**
 	 * @return
 	 */
@@ -69,10 +59,10 @@ public class SubmitSMResp extends Response implements Marshaller {
 	public void setMessage_id(String string) {
 		message_id = string;
 	}
-	
+
 	public String toString() {
-		return super.toString()+","+
-		"message_id="+message_id;		
+		return super.toString() + "," +
+				"message_id=" + message_id;
 	}
 
 }

@@ -128,7 +128,7 @@ public class PduConstants {
 	public static final short USSD_SERVICE_OP = 0x0501;
 
 	public static final short RECEIPTED_MESSAGE_ID = 0x001E;
-	
+
 	public static final short MESSAGE_STATE = 0x0427;
 
 
@@ -305,10 +305,10 @@ public class PduConstants {
 
 	public static final int submitsm_error_count = 17;
 
-	public static final int[] SUBMIT_SM_ERRORS = { 0x00000006, 0x00000007,
+	public static final int[] SUBMIT_SM_ERRORS = {0x00000006, 0x00000007,
 			0x00000008, 0x0000000A, 0x0000000B, 0x00000014, 0x00000042,
 			0x00000043, 0x00000045, 0x00000048, 0x00000049, 0x00000050,
-			0x00000051, 0x00000054, 0x00000058, 0x00000061, 0x00000062 };
+			0x00000051, 0x00000054, 0x00000058, 0x00000061, 0x00000062};
 
 	public static final String SERVICE_TYPE_WAP = "WAP";
 

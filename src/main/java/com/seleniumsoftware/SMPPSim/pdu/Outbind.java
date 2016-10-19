@@ -28,23 +28,23 @@
 package com.seleniumsoftware.SMPPSim.pdu;
 
 import com.seleniumsoftware.SMPPSim.Smsc;
-import com.seleniumsoftware.SMPPSim.pdu.util.*;
+import com.seleniumsoftware.SMPPSim.pdu.util.PduUtilities;
 import org.slf4j.LoggerFactory;
 
 public class Outbind extends Response implements Marshaller {
 
-    
-    private static org.slf4j.Logger logger = LoggerFactory.getLogger(Outbind.class);
+
+	private static org.slf4j.Logger logger = LoggerFactory.getLogger(Outbind.class);
 
 	private Smsc smsc = Smsc.getInstance();
 
 	// PDU attributes
 
-	private String system_id="";
+	private String system_id = "";
 
-	private String password="";
+	private String password = "";
 
-	public Outbind(String system_id,String password) {
+	public Outbind(String system_id, String password) {
 		// message header fields except message length
 		setCmd_id(PduConstants.OUTBIND);
 		setCmd_status(PduConstants.ESME_ROK);
@@ -55,7 +55,7 @@ public class Outbind extends Response implements Marshaller {
 		this.system_id = system_id;
 		this.password = password;
 	}
-	
+
 	public byte[] marshall() throws Exception {
 		out.reset();
 		super.prepareHeaderForMarshalling();
@@ -78,17 +78,17 @@ public class Outbind extends Response implements Marshaller {
 	}
 
 	/**
-	 * @return
-	 */
-	public String getSystem_id() {
-		return system_id;
-	}
-
-	/**
 	 * @param string
 	 */
 	public void setPassword(String string) {
 		password = string;
+	}
+
+	/**
+	 * @return
+	 */
+	public String getSystem_id() {
+		return system_id;
 	}
 
 	/**

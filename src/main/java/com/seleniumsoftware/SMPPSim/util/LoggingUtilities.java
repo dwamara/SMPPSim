@@ -25,22 +25,19 @@
  * $Header: /var/cvsroot/SMPPSim2/distribution/2.6.9/SMPPSim/src/java/com/seleniumsoftware/SMPPSim/util/LoggingUtilities.java,v 1.1 2012/07/24 14:49:00 martin Exp $
  ****************************************************************************/
 package com.seleniumsoftware.SMPPSim.util;
-import com.seleniumsoftware.SMPPSim.SMPPSim;
-import com.seleniumsoftware.SMPPSim.pdu.*;
 
-import java.util.StringTokenizer;
-import java.util.logging.*;
+import com.seleniumsoftware.SMPPSim.pdu.Pdu;
 import org.slf4j.LoggerFactory;
 
 
 public class LoggingUtilities {
 
-//	private static Logger logger = Logger.getLogger("com.seleniumsoftware.smppsim");
-    private static org.slf4j.Logger logger = LoggerFactory.getLogger(LoggingUtilities.class);
-	public static void hexDump(String title, byte[] m, int l) 
-        {
-          //empty method, do nothing!
-        }
+	//	private static Logger logger = Logger.getLogger("com.seleniumsoftware.smppsim");
+	private static org.slf4j.Logger logger = LoggerFactory.getLogger(LoggingUtilities.class);
+
+	public static void hexDump(String title, byte[] m, int l) {
+		//empty method, do nothing!
+	}
 //	public static void hexDump(String title, byte[] m, int l) {
 //		int p = 0;
 //		StringBuffer line = new StringBuffer();
@@ -64,11 +61,10 @@ public class LoggingUtilities {
 //		}
 //	}
 
-	public static void logDecodedPdu(Pdu p) 
-        {
-            //empty, do nothing!
-        }
-        
+	public static void logDecodedPdu(Pdu p) {
+		//empty, do nothing!
+	}
+
 //	public static void logDecodedPdu(Pdu p) {
 //		// Split into max 80 character lines around comma delimited boundaries
 //		int i=0;

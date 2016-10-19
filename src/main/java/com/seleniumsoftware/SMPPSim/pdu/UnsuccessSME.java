@@ -38,10 +38,10 @@ public class UnsuccessSME {
 	}
 
 	public UnsuccessSME(
-		int dest_addr_ton,
-		int dest_addr_npi,
-		String destination_addr,
-		int error_status_code) {
+			int dest_addr_ton,
+			int dest_addr_npi,
+			String destination_addr,
+			int error_status_code) {
 		this.dest_addr_ton = dest_addr_ton;
 		this.dest_addr_npi = dest_addr_npi;
 		this.destination_addr = destination_addr;
@@ -56,6 +56,13 @@ public class UnsuccessSME {
 	}
 
 	/**
+	 * @param i
+	 */
+	public void setDest_addr_npi(int i) {
+		dest_addr_npi = i;
+	}
+
+	/**
 	 * @return
 	 */
 	public int getDest_addr_ton() {
@@ -63,10 +70,24 @@ public class UnsuccessSME {
 	}
 
 	/**
+	 * @param i
+	 */
+	public void setDest_addr_ton(int i) {
+		dest_addr_ton = i;
+	}
+
+	/**
 	 * @return
 	 */
 	public String getDestination_addr() {
 		return destination_addr;
+	}
+
+	/**
+	 * @param string
+	 */
+	public void setDestination_addr(String string) {
+		destination_addr = string;
 	}
 
 	/**
@@ -79,36 +100,15 @@ public class UnsuccessSME {
 	/**
 	 * @param i
 	 */
-	public void setDest_addr_npi(int i) {
-		dest_addr_npi = i;
-	}
-
-	/**
-	 * @param i
-	 */
-	public void setDest_addr_ton(int i) {
-		dest_addr_ton = i;
-	}
-
-	/**
-	 * @param string
-	 */
-	public void setDestination_addr(String string) {
-		destination_addr = string;
-	}
-
-	/**
-	 * @param i
-	 */
 	public void setError_status_code(int i) {
 		error_status_code = i;
 	}
 
 	public String toString() {
-		return "dest_addr_ton="+dest_addr_ton+","+
-		"dest_addr_npi="+dest_addr_npi+","+
-		"destination_addr="+destination_addr+","+
-		"error_status_code="+error_status_code;
+		return "dest_addr_ton=" + dest_addr_ton + "," +
+				"dest_addr_npi=" + dest_addr_npi + "," +
+				"destination_addr=" + destination_addr + "," +
+				"error_status_code=" + error_status_code;
 	}
 
 }

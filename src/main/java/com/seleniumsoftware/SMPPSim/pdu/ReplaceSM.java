@@ -27,13 +27,13 @@
 
 package com.seleniumsoftware.SMPPSim.pdu;
 
-import com.seleniumsoftware.SMPPSim.pdu.util.*;
+import com.seleniumsoftware.SMPPSim.pdu.util.PduUtilities;
 import org.slf4j.LoggerFactory;
 
 public class ReplaceSM extends Request implements Demarshaller {
 
-          
-    private static org.slf4j.Logger logger = LoggerFactory.getLogger(ReplaceSM.class);
+
+	private static org.slf4j.Logger logger = LoggerFactory.getLogger(ReplaceSM.class);
 
 	// PDU attributes
 
@@ -169,73 +169,17 @@ public class ReplaceSM extends Request implements Demarshaller {
 	}
 
 	/**
-	 * @return
-	 */
-	public int getRegistered_delivery_flag() {
-		return registered_delivery_flag;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getSchedule_delivery_time() {
-		return schedule_delivery_time;
-	}
-
-	/**
-	 * @return
-	 */
-	public byte[] getShort_message() {
-		return short_message;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getSm_default_msg_id() {
-		return sm_default_msg_id;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getSm_length() {
-		return sm_length;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getSource_addr() {
-		return source_addr;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getSource_addr_npi() {
-		return source_addr_npi;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getSource_addr_ton() {
-		return source_addr_ton;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getValidity_period() {
-		return validity_period;
-	}
-
-	/**
 	 * @param string
 	 */
 	public void setMessage_id(String string) {
 		message_id = string;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getRegistered_delivery_flag() {
+		return registered_delivery_flag;
 	}
 
 	/**
@@ -246,10 +190,24 @@ public class ReplaceSM extends Request implements Demarshaller {
 	}
 
 	/**
+	 * @return
+	 */
+	public String getSchedule_delivery_time() {
+		return schedule_delivery_time;
+	}
+
+	/**
 	 * @param string
 	 */
 	public void setSchedule_delivery_time(String string) {
 		schedule_delivery_time = string;
+	}
+
+	/**
+	 * @return
+	 */
+	public byte[] getShort_message() {
+		return short_message;
 	}
 
 	/**
@@ -260,10 +218,24 @@ public class ReplaceSM extends Request implements Demarshaller {
 	}
 
 	/**
+	 * @return
+	 */
+	public int getSm_default_msg_id() {
+		return sm_default_msg_id;
+	}
+
+	/**
 	 * @param i
 	 */
 	public void setSm_default_msg_id(int i) {
 		sm_default_msg_id = i;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getSm_length() {
+		return sm_length;
 	}
 
 	/**
@@ -274,10 +246,24 @@ public class ReplaceSM extends Request implements Demarshaller {
 	}
 
 	/**
+	 * @return
+	 */
+	public String getSource_addr() {
+		return source_addr;
+	}
+
+	/**
 	 * @param string
 	 */
 	public void setSource_addr(String string) {
 		source_addr = string;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getSource_addr_npi() {
+		return source_addr_npi;
 	}
 
 	/**
@@ -288,10 +274,24 @@ public class ReplaceSM extends Request implements Demarshaller {
 	}
 
 	/**
+	 * @return
+	 */
+	public int getSource_addr_ton() {
+		return source_addr_ton;
+	}
+
+	/**
 	 * @param i
 	 */
 	public void setSource_addr_ton(int i) {
 		source_addr_ton = i;
+	}
+
+	/**
+	 * @return
+	 */
+	public String getValidity_period() {
+		return validity_period;
 	}
 
 	/**

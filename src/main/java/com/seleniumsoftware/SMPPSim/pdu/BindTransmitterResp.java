@@ -26,11 +26,12 @@
  ****************************************************************************/
 
 package com.seleniumsoftware.SMPPSim.pdu;
+
 import com.seleniumsoftware.SMPPSim.pdu.util.PduUtilities;
 
 public class BindTransmitterResp
-	extends Response
-	implements Marshaller {
+		extends Response
+		implements Marshaller {
 
 	String system_id;
 
@@ -38,8 +39,8 @@ public class BindTransmitterResp
 	}
 
 	public BindTransmitterResp(
-		BindTransmitter requestMsg,
-		String sysid) {
+			BindTransmitter requestMsg,
+			String sysid) {
 		// message header fields except message length
 		setCmd_id(PduConstants.BIND_TRANSMITTER_RESP);
 		setCmd_status(PduConstants.ESME_ROK);
@@ -52,22 +53,22 @@ public class BindTransmitterResp
 		system_id = sysid;
 	}
 
-	public byte [] marshall() throws Exception {
+	public byte[] marshall() throws Exception {
 		out.reset();
 		super.prepareHeaderForMarshalling();
-		out.write(PduUtilities.stringToNullTerminatedByteArray(system_id)); 
-		byte [] response = out.toByteArray();
+		out.write(PduUtilities.stringToNullTerminatedByteArray(system_id));
+		byte[] response = out.toByteArray();
 		int l = response.length;
-		response = PduUtilities.setPduLength(response,l);
+		response = PduUtilities.setPduLength(response, l);
 		return response;
 	}
-	
+
 	/**
 	 * *returns String representation of PDU
 	 */
 	public String toString() {
-		return 	super.toString()+","+
-				"system_id="+system_id;
+		return super.toString() + "," +
+				"system_id=" + system_id;
 	}
 
 

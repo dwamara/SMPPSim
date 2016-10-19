@@ -32,8 +32,8 @@ import org.slf4j.LoggerFactory;
 
 abstract public class Request extends Pdu implements Demarshaller {
 
-    private static org.slf4j.Logger logger = LoggerFactory.getLogger(Request.class);
-    
+	private static org.slf4j.Logger logger = LoggerFactory.getLogger(Request.class);
+
 	public void demarshall(byte[] request) throws Exception {
 		int inx = 0;
 		try {

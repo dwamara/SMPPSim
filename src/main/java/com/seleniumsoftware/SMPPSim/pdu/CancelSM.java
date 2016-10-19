@@ -27,14 +27,13 @@
 
 package com.seleniumsoftware.SMPPSim.pdu;
 
-import com.seleniumsoftware.SMPPSim.SMPPSim;
-import com.seleniumsoftware.SMPPSim.pdu.util.*;
+import com.seleniumsoftware.SMPPSim.pdu.util.PduUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CancelSM extends Request implements Demarshaller {
 
-    private static Logger logger = LoggerFactory.getLogger(CancelSM.class);
+	private static Logger logger = LoggerFactory.getLogger(CancelSM.class);
 	// PDU attributes
 
 	private String service_type;
@@ -130,10 +129,30 @@ public class CancelSM extends Request implements Demarshaller {
 	}
 
 	/**
+	 * *returns String representation of PDU
+	 */
+	public String toString() {
+		return super.toString() + "," + "service_type=" + service_type + ","
+				+ "original_message_id=" + original_message_id + ","
+				+ "source_addr_ton=" + source_addr_ton + ","
+				+ "source_addr_npi=" + source_addr_npi + "," + "source_addr="
+				+ source_addr + "," + "dest_addr_ton=" + dest_addr_ton + ","
+				+ "dest_addr_npi=" + dest_addr_npi + "," + "destination_addr"
+				+ destination_addr;
+	}
+
+	/**
 	 * @return
 	 */
 	public int getDest_addr_npi() {
 		return dest_addr_npi;
+	}
+
+	/**
+	 * @param i
+	 */
+	public void setDest_addr_npi(int i) {
+		dest_addr_npi = i;
 	}
 
 	/**
@@ -144,10 +163,24 @@ public class CancelSM extends Request implements Demarshaller {
 	}
 
 	/**
+	 * @param i
+	 */
+	public void setDest_addr_ton(int i) {
+		dest_addr_ton = i;
+	}
+
+	/**
 	 * @return
 	 */
 	public String getDestination_addr() {
 		return destination_addr;
+	}
+
+	/**
+	 * @param string
+	 */
+	public void setDestination_addr(String string) {
+		destination_addr = string;
 	}
 
 	/**
@@ -158,10 +191,24 @@ public class CancelSM extends Request implements Demarshaller {
 	}
 
 	/**
+	 * @param string
+	 */
+	public void setOriginal_message_id(String string) {
+		original_message_id = string;
+	}
+
+	/**
 	 * @return
 	 */
 	public String getService_type() {
 		return service_type;
+	}
+
+	/**
+	 * @param string
+	 */
+	public void setService_type(String string) {
+		service_type = string;
 	}
 
 	/**
@@ -172,10 +219,24 @@ public class CancelSM extends Request implements Demarshaller {
 	}
 
 	/**
+	 * @param string
+	 */
+	public void setSource_addr(String string) {
+		source_addr = string;
+	}
+
+	/**
 	 * @return
 	 */
 	public int getSource_addr_npi() {
 		return source_addr_npi;
+	}
+
+	/**
+	 * @param i
+	 */
+	public void setSource_addr_npi(int i) {
+		source_addr_npi = i;
 	}
 
 	/**
@@ -188,70 +249,8 @@ public class CancelSM extends Request implements Demarshaller {
 	/**
 	 * @param i
 	 */
-	public void setDest_addr_npi(int i) {
-		dest_addr_npi = i;
-	}
-
-	/**
-	 * @param i
-	 */
-	public void setDest_addr_ton(int i) {
-		dest_addr_ton = i;
-	}
-
-	/**
-	 * @param string
-	 */
-	public void setDestination_addr(String string) {
-		destination_addr = string;
-	}
-
-	/**
-	 * @param string
-	 */
-	public void setOriginal_message_id(String string) {
-		original_message_id = string;
-	}
-
-	/**
-	 * @param string
-	 */
-	public void setService_type(String string) {
-		service_type = string;
-	}
-
-	/**
-	 * @param string
-	 */
-	public void setSource_addr(String string) {
-		source_addr = string;
-	}
-
-	/**
-	 * @param i
-	 */
-	public void setSource_addr_npi(int i) {
-		source_addr_npi = i;
-	}
-
-	/**
-	 * @param i
-	 */
 	public void setSource_addr_ton(int i) {
 		source_addr_ton = i;
-	}
-
-	/**
-	 * *returns String representation of PDU
-	 */
-	public String toString() {
-		return super.toString() + "," + "service_type=" + service_type + ","
-				+ "original_message_id=" + original_message_id + ","
-				+ "source_addr_ton=" + source_addr_ton + ","
-				+ "source_addr_npi=" + source_addr_npi + "," + "source_addr="
-				+ source_addr + "," + "dest_addr_ton=" + dest_addr_ton + ","
-				+ "dest_addr_npi=" + dest_addr_npi + "," + "destination_addr"
-				+ destination_addr;
 	}
 
 }

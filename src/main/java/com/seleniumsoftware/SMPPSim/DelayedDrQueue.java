@@ -27,39 +27,36 @@
 package com.seleniumsoftware.SMPPSim;
 
 import com.seleniumsoftware.SMPPSim.exceptions.InboundQueueFullException;
-import com.seleniumsoftware.SMPPSim.pdu.*;
-
-import java.util.*;
+import com.seleniumsoftware.SMPPSim.pdu.DeliverSM;
+import com.seleniumsoftware.SMPPSim.pdu.DeliveryReceipt;
+import com.seleniumsoftware.SMPPSim.pdu.Pdu;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+
 public class DelayedDrQueue implements Runnable {
 
-	private static DelayedDrQueue drqueue;
-
-//	private static Logger logger = Logger
-//			.getLogger("com.seleniumsoftware.smppsim");
-    private static Logger logger = LoggerFactory.getLogger(CallbackServerConnector.class);
-	
-    private Smsc smsc = Smsc.getInstance();
-
-	private InboundQueue iqueue = InboundQueue.getInstance();
-
-	ArrayList<DeliveryReceipt> dr_queue_pdus;
-
 	private static final int period = 5000;
-	
+	private static DelayedDrQueue drqueue;
+	//	private static Logger logger = Logger
+//			.getLogger("com.seleniumsoftware.smppsim");
+	private static Logger logger = LoggerFactory.getLogger(CallbackServerConnector.class);
+	ArrayList<DeliveryReceipt> dr_queue_pdus;
+	private Smsc smsc = Smsc.getInstance();
+	private InboundQueue iqueue = InboundQueue.getInstance();
 	private long delay_ms;
-
-	public static DelayedDrQueue getInstance() {
-		if (drqueue == null)
-			drqueue = new DelayedDrQueue();
-		return drqueue;
-	}
 
 	private DelayedDrQueue() {
 		dr_queue_pdus = new ArrayList<DeliveryReceipt>();
 		delay_ms = SMPPSim.getDelayReceiptsBy();
+	}
+
+	public static DelayedDrQueue getInstance() {
+		if (drqueue == null) {
+			drqueue = new DelayedDrQueue();
+		}
+		return drqueue;
 	}
 
 	public void delayDeliveryReceipt(DeliveryReceipt pdu) {
@@ -94,7 +91,7 @@ public class DelayedDrQueue implements Runnable {
 					Pdu mo = dr_queue_pdus.get(i);
 					try {
 						DeliverSM dsm = (DeliverSM) mo;
-						long earliest_delivery_time = (dsm.getCreated()+delay_ms);
+						long earliest_delivery_time = (dsm.getCreated() + delay_ms);
 						long now = System.currentTimeMillis();
 						long diff = earliest_delivery_time - now;
 						//logger.debug("Considering delivery receipt: "+(diff/1000)+" seconds to go");

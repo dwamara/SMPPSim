@@ -26,12 +26,13 @@
  ****************************************************************************/
 
 package com.seleniumsoftware.SMPPSim.pdu;
-import com.seleniumsoftware.SMPPSim.pdu.util.*;
+
+import com.seleniumsoftware.SMPPSim.pdu.util.PduUtilities;
 import org.slf4j.LoggerFactory;
 
 public class DeliverSMResp extends Request implements Demarshaller {
 
-  private static org.slf4j.Logger logger = LoggerFactory.getLogger(DeliverSMResp.class);
+	private static org.slf4j.Logger logger = LoggerFactory.getLogger(DeliverSMResp.class);
 	// PDU attributes
 
 	private String message_id;
@@ -52,17 +53,18 @@ public class DeliverSMResp extends Request implements Demarshaller {
 	}
 
 	/**
+	 * *returns String representation of PDU
+	 */
+	public String toString() {
+		return super.toString() + "," +
+				"system_id=" + message_id;
+	}
+
+	/**
 	 * @return
 	 */
 	public String getMessage_id() {
 		return message_id;
-	}
-	/**
-	 * *returns String representation of PDU
-	 */
-	public String toString() {
-		return 	super.toString()+","+
-				"system_id="+message_id;
 	}
 
 }

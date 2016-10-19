@@ -26,7 +26,8 @@
  ****************************************************************************/
 
 package com.seleniumsoftware.SMPPSim.pdu;
-import com.seleniumsoftware.SMPPSim.*;
+
+import com.seleniumsoftware.SMPPSim.Smsc;
 import com.seleniumsoftware.SMPPSim.pdu.util.PduUtilities;
 
 public class SubmitMultiResp extends Response implements Marshaller {
@@ -56,10 +57,10 @@ public class SubmitMultiResp extends Response implements Marshaller {
 		out.reset();
 		UnsuccessSME u = new UnsuccessSME();
 		super.prepareHeaderForMarshalling();
-		
+
 		out.write(PduUtilities.stringToNullTerminatedByteArray(message_id));
 		out.write(PduUtilities.makeByteArrayFromInt(no_unsuccess, 1));
-		for (int i=0;i<no_unsuccess;i++) {
+		for (int i = 0; i < no_unsuccess; i++) {
 			u = unsuccess_smes[i];
 			out.write(PduUtilities.makeByteArrayFromInt(u.getDest_addr_ton(), 1));
 			out.write(PduUtilities.makeByteArrayFromInt(u.getDest_addr_npi(), 1));
@@ -80,6 +81,13 @@ public class SubmitMultiResp extends Response implements Marshaller {
 	}
 
 	/**
+	 * @param string
+	 */
+	public void setMessage_id(String string) {
+		message_id = string;
+	}
+
+	/**
 	 * @return
 	 */
 	public int getNo_unsuccess() {
@@ -94,13 +102,6 @@ public class SubmitMultiResp extends Response implements Marshaller {
 	}
 
 	/**
-	 * @param string
-	 */
-	public void setMessage_id(String string) {
-		message_id = string;
-	}
-
-	/**
 	 * @param unsuccessSMEs
 	 */
 	public void setUnsuccess_smes(UnsuccessSME[] unsuccessSMEs) {
@@ -109,21 +110,22 @@ public class SubmitMultiResp extends Response implements Marshaller {
 	}
 
 	public String toString() {
-		String string = super.toString()+","+
-		"message_id="+message_id+","+
-		"unsuccess_sme array:";
-		if (no_unsuccess > 0)
+		String string = super.toString() + "," +
+				"message_id=" + message_id + "," +
+				"unsuccess_sme array:";
+		if (no_unsuccess > 0) {
 			string = string + unsuccessSmesToString(unsuccess_smes);
-		else
+		} else {
 			string = string + "<empty>";
+		}
 		return string;
 	}
-	
+
 	public String unsuccessSmesToString(UnsuccessSME[] unsuccess_smes) {
-		int l=unsuccess_smes.length;
+		int l = unsuccess_smes.length;
 		StringBuffer sb = new StringBuffer();
-		for (int i=0;i<l;i++) {
-			sb.append("["+i+"]");
+		for (int i = 0; i < l; i++) {
+			sb.append("[" + i + "]");
 			sb.append(unsuccess_smes[i].toString());
 		}
 		return sb.toString();

@@ -22,7 +22,7 @@
  * @author martin@seleniumsoftware.com
  * http://www.woolleynet.com
  * http://www.seleniumsoftware.com
- * 
+ *
  ****************************************************************************/
 
 package com.seleniumsoftware.SMPPSim.util;
@@ -50,8 +50,9 @@ public class Utilities {
 		while (i < l) {
 			String byteAsHex = hexNoSpaces.substring((i * 2), ((i * 2) + 2));
 			int b = (int) (Integer.parseInt(byteAsHex, 16) & 0x000000FF);
-			if (b < 0)
+			if (b < 0) {
 				b = 256 + b;
+			}
 			result[i] = (byte) b;
 			i++;
 		}
@@ -59,29 +60,32 @@ public class Utilities {
 
 	}
 
-	public static boolean isEven(int number) {
-		int half = number / 2;
-		if ((half * 2) == number)
-			return true;
-		else
-			return false;
-	}
-
 	public static String removeSpaces(String text) {
 		int l = text.length();
 		StringBuffer sb = new StringBuffer();
 		for (int i = 0; i < l; i++) {
-			if (text.charAt(i) != ' ')
+			if (text.charAt(i) != ' ') {
 				sb.append(text.charAt(i));
+			}
 		}
 		return sb.toString();
+	}
+
+	public static boolean isEven(int number) {
+		int half = number / 2;
+		if ((half * 2) == number) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	public static boolean validHexChars(String hex) {
 		int l = hex.length();
 		for (int i = 0; i < l; i++) {
-			if (!hexChar(hex.charAt(i)))
+			if (!hexChar(hex.charAt(i))) {
 				return false;
+			}
 		}
 		return true;
 
@@ -89,38 +93,38 @@ public class Utilities {
 
 	public static boolean hexChar(char h) {
 		switch (h) {
-		case '0':
-			return true;
-		case '1':
-			return true;
-		case '2':
-			return true;
-		case '3':
-			return true;
-		case '4':
-			return true;
-		case '5':
-			return true;
-		case '6':
-			return true;
-		case '7':
-			return true;
-		case '8':
-			return true;
-		case '9':
-			return true;
-		case 'A':
-			return true;
-		case 'B':
-			return true;
-		case 'C':
-			return true;
-		case 'D':
-			return true;
-		case 'E':
-			return true;
-		case 'F':
-			return true;
+			case '0':
+				return true;
+			case '1':
+				return true;
+			case '2':
+				return true;
+			case '3':
+				return true;
+			case '4':
+				return true;
+			case '5':
+				return true;
+			case '6':
+				return true;
+			case '7':
+				return true;
+			case '8':
+				return true;
+			case '9':
+				return true;
+			case 'A':
+				return true;
+			case 'B':
+				return true;
+			case 'C':
+				return true;
+			case 'D':
+				return true;
+			case 'E':
+				return true;
+			case 'F':
+				return true;
 		}
 		return false;
 	}

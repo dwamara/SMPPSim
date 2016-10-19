@@ -24,11 +24,10 @@
  * http://www.seleniumsoftware.com
  * $Header: /var/cvsroot/SMPPSim2/distribution/2.6.9/SMPPSim/src/java/com/seleniumsoftware/SMPPSim/exceptions/InvalidHexStringlException.java,v 1.1 2012/07/24 14:48:59 martin Exp $
  ****************************************************************************
-*/
+ */
 package com.seleniumsoftware.SMPPSim.exceptions;
 
-public class InvalidHexStringlException extends Exception
-{
+public class InvalidHexStringlException extends Exception {
 	public InvalidHexStringlException() {
 		super();
 	}

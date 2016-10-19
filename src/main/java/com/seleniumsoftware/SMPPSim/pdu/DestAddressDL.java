@@ -46,7 +46,7 @@ public class DestAddressDL extends DestAddress {
 	}
 
 	public String toString() {
-		return super.toString()+","+
-		"dl_name="+dl_name;
+		return super.toString() + "," +
+				"dl_name=" + dl_name;
 	}
 }

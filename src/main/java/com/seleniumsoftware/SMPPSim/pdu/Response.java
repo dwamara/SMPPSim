@@ -26,35 +26,46 @@
  ****************************************************************************/
 
 package com.seleniumsoftware.SMPPSim.pdu;
-import com.seleniumsoftware.SMPPSim.pdu.util.*;
 
-import java.io.*;
+import com.seleniumsoftware.SMPPSim.pdu.util.PduUtilities;
+
+import java.io.ByteArrayOutputStream;
 
 abstract public class Response extends Pdu implements Marshaller {
 
 	transient ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-	public void prepareHeaderForMarshalling() throws Exception {
-		out.reset();
-		out.write(PduUtilities.makeByteArrayFromInt(getCmd_len(),4));
-		out.write(PduUtilities.makeByteArrayFromInt(getCmd_id(),4));
-		out.write(PduUtilities.makeByteArrayFromInt(getCmd_status(),4));
-		out.write(PduUtilities.makeByteArrayFromInt(getSeq_no(),4));
-	}
-	
-	public byte [] errorResponse(int cmd_id, int cmd_status, int seq_no) throws Exception {
+	public byte[] errorResponse(int cmd_id, int cmd_status, int seq_no) throws Exception {
 		out.reset();
 		setCmd_len(16);
 		setCmd_id(cmd_id);
 		setCmd_status(cmd_status);
 		setSeq_no(seq_no);
 		prepareHeaderForMarshalling();
-		byte [] response = out.toByteArray();
+		byte[] response = out.toByteArray();
 		return response;
 	}
-	
+
+	public void prepareHeaderForMarshalling() throws Exception {
+		out.reset();
+		out.write(PduUtilities.makeByteArrayFromInt(getCmd_len(), 4));
+		out.write(PduUtilities.makeByteArrayFromInt(getCmd_id(), 4));
+		out.write(PduUtilities.makeByteArrayFromInt(getCmd_status(), 4));
+		out.write(PduUtilities.makeByteArrayFromInt(getSeq_no(), 4));
+	}
+
 	public String toString() {
 		return super.toString();
 	}
+
+	public byte[] marshall() throws Exception {
+		out.reset();
+		prepareHeaderForMarshalling();
+		byte[] response = out.toByteArray();
+		int l = response.length;
+		response = PduUtilities.setPduLength(response, l);
+		return response;
+	}
+
 
 }

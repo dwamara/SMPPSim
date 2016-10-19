@@ -1,20 +1,20 @@
 package com.seleniumsoftware.examples;
 
-import java.net.ServerSocket;
 import org.slf4j.LoggerFactory;
 
 public class CallbackReceiver implements CallbackReceivable {
 
-    private static org.slf4j.Logger logger = LoggerFactory.getLogger(CallbackReceiver.class);
+	private static org.slf4j.Logger logger = LoggerFactory.getLogger(CallbackReceiver.class);
 
 //	private static Logger logger = Logger.getLogger("com.seleniumsoftware.examples");
-	
+
 	public void sent(byte[] pdu) {
 		hexDump("SMPPSim sent to ESME:", pdu, pdu.length);
 		if (pduIsDeliverSm(pdu)) {
 			logger.info("(PDU type was DeliverSM)");
-		} else
+		} else {
 			logger.debug("Unrecognised PDU type");
+		}
 	}
 
 	public void received(byte[] pdu) {
@@ -33,8 +33,9 @@ public class CallbackReceiver implements CallbackReceivable {
 			logger.info("(PDU type was Enquire_Link)");
 		} else if (pduIsUnbind(pdu)) {
 			logger.info("(PDU type was Unbind)");
-		} else
+		} else {
 			logger.debug("Unrecognised PDU type");
+		}
 	}
 
 	private boolean pduIsSubmitSm(byte[] pdu) {
@@ -57,10 +58,6 @@ public class CallbackReceiver implements CallbackReceivable {
 		return (pdu[16] == (byte) 9);
 	}
 
-	private boolean pduIsDeliverSm(byte[] pdu) {
-		return (pdu[16] == (byte) 5);
-	}
-
 	private boolean pduIsEnquireLink(byte[] pdu) {
 		return (pdu[16] == (byte) 0x15);
 	}
@@ -75,8 +72,9 @@ public class CallbackReceiver implements CallbackReceivable {
 		logger.info(title);
 		logger.info("Hex dump (" + l + ") bytes:");
 		for (int i = 0; i < l; i++) {
-			if ((m[i] >= 0) & (m[i] < 16))
+			if ((m[i] >= 0) & (m[i] < 16)) {
 				line.append("0");
+			}
 			line.append(Integer.toString(m[i] & 0xff, 16).toUpperCase());
 			if ((++p % 4) == 0) {
 				line.append(":");
@@ -93,5 +91,9 @@ public class CallbackReceiver implements CallbackReceivable {
 		logger.info("====================================");
 	}
 
-	
+	private boolean pduIsDeliverSm(byte[] pdu) {
+		return (pdu[16] == (byte) 5);
+	}
+
+
 }

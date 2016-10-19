@@ -27,13 +27,13 @@
 
 package com.seleniumsoftware.SMPPSim.pdu;
 
-import com.seleniumsoftware.SMPPSim.pdu.util.*;
+import com.seleniumsoftware.SMPPSim.pdu.util.PduUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BindTransmitter extends Request implements Demarshaller {
 
-    private static Logger logger = LoggerFactory.getLogger(BindTransmitter.class);
+	private static Logger logger = LoggerFactory.getLogger(BindTransmitter.class);
 	// PDU attributes
 
 	private String system_id;
@@ -120,52 +120,21 @@ public class BindTransmitter extends Request implements Demarshaller {
 	}
 
 	/**
+	 * *returns String representation of PDU
+	 */
+	public String toString() {
+		return super.toString() + "," + "system_id=" + system_id + ","
+				+ "password=" + password + "," + "system_type=" + system_type
+				+ "," + "interface_version=" + interface_version + ","
+				+ "addr_ton=" + addr_ton + "," + "addr_npi=" + addr_npi + ","
+				+ "address_range=" + address_range;
+	}
+
+	/**
 	 * @return
 	 */
 	public int getAddr_npi() {
 		return addr_npi;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getAddr_ton() {
-		return addr_ton;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getAddress_range() {
-		return address_range;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getInterface_version() {
-		return interface_version;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getPassword() {
-		return password;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getSystem_id() {
-		return system_id;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getSystem_type() {
-		return system_type;
 	}
 
 	/**
@@ -176,10 +145,24 @@ public class BindTransmitter extends Request implements Demarshaller {
 	}
 
 	/**
+	 * @return
+	 */
+	public int getAddr_ton() {
+		return addr_ton;
+	}
+
+	/**
 	 * @param i
 	 */
 	public void setAddr_ton(int i) {
 		addr_ton = i;
+	}
+
+	/**
+	 * @return
+	 */
+	public String getAddress_range() {
+		return address_range;
 	}
 
 	/**
@@ -190,10 +173,24 @@ public class BindTransmitter extends Request implements Demarshaller {
 	}
 
 	/**
+	 * @return
+	 */
+	public int getInterface_version() {
+		return interface_version;
+	}
+
+	/**
 	 * @param i
 	 */
 	public void setInterface_version(int i) {
 		interface_version = i;
+	}
+
+	/**
+	 * @return
+	 */
+	public String getPassword() {
+		return password;
 	}
 
 	/**
@@ -204,6 +201,13 @@ public class BindTransmitter extends Request implements Demarshaller {
 	}
 
 	/**
+	 * @return
+	 */
+	public String getSystem_id() {
+		return system_id;
+	}
+
+	/**
 	 * @param string
 	 */
 	public void setSystem_id(String string) {
@@ -211,21 +215,17 @@ public class BindTransmitter extends Request implements Demarshaller {
 	}
 
 	/**
+	 * @return
+	 */
+	public String getSystem_type() {
+		return system_type;
+	}
+
+	/**
 	 * @param string
 	 */
 	public void setSystem_type(String string) {
 		system_type = string;
-	}
-
-	/**
-	 * *returns String representation of PDU
-	 */
-	public String toString() {
-		return super.toString() + "," + "system_id=" + system_id + ","
-				+ "password=" + password + "," + "system_type=" + system_type
-				+ "," + "interface_version=" + interface_version + ","
-				+ "addr_ton=" + addr_ton + "," + "addr_npi=" + addr_npi + ","
-				+ "address_range=" + address_range;
 	}
 
 }

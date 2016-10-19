@@ -27,16 +27,24 @@
 
 package com.seleniumsoftware.SMPPSim;
 
-import com.seleniumsoftware.SMPPSim.pdu.*;
-import com.seleniumsoftware.SMPPSim.util.*;
-import java.util.*;
+import com.seleniumsoftware.SMPPSim.pdu.DestAddress;
+import com.seleniumsoftware.SMPPSim.pdu.DestAddressSME;
+import com.seleniumsoftware.SMPPSim.pdu.PduConstants;
+import com.seleniumsoftware.SMPPSim.pdu.SubmitMulti;
+import com.seleniumsoftware.SMPPSim.pdu.SubmitMultiResp;
+import com.seleniumsoftware.SMPPSim.pdu.SubmitSM;
+import com.seleniumsoftware.SMPPSim.pdu.SubmitSMResp;
+import com.seleniumsoftware.SMPPSim.pdu.UnsuccessSME;
+import com.seleniumsoftware.SMPPSim.util.LoggingUtilities;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
 
 public class TestProtocolHandler1 extends StandardProtocolHandler {
 //	private static Logger logger = Logger.getLogger("com.seleniumsoftware.smppsim");
 
-     private static org.slf4j.Logger logger = LoggerFactory.getLogger(TestProtocolHandler1.class);
-    
+	private static org.slf4j.Logger logger = LoggerFactory.getLogger(TestProtocolHandler1.class);
+
 	public TestProtocolHandler1() {
 	}
 
@@ -54,8 +62,9 @@ public class TestProtocolHandler1 extends StandardProtocolHandler {
 		byte[] resp_message;
 		SubmitSM smppmsg = new SubmitSM();
 		smppmsg.demarshall(message);
-		if (smsc.isDecodePdus())
+		if (smsc.isDecodePdus()) {
 			LoggingUtilities.logDecodedPdu(smppmsg);
+		}
 
 		// now make the response object
 
@@ -64,29 +73,30 @@ public class TestProtocolHandler1 extends StandardProtocolHandler {
 		// Validate session
 		if ((!session.isBound()) || (!session.isTransmitter())) {
 			logger.debug(
-				"Invalid bind state. Must be bound as transmitter for this PDU");
+					"Invalid bind state. Must be bound as transmitter for this PDU");
 			wasInvalidBindState = true;
 			smsc.incSubmitSmERR();
 			connection.writeResponse(
-				smppresp.errorResponse(
-					smppresp.getCmd_id(),
-					PduConstants.ESME_RINVBNDSTS,
-					smppresp.getSeq_no()));
+					smppresp.errorResponse(
+							smppresp.getCmd_id(),
+							PduConstants.ESME_RINVBNDSTS,
+							smppresp.getSeq_no()));
 		}
 
 		// Validate MSISDN
 		try {
 			logger.info(
-				"Validating destination_addr:" + smppmsg.getDestination_addr());
+					"Validating destination_addr:" + smppmsg.getDestination_addr());
 			long n = Long.parseLong(smppmsg.getDestination_addr());
 			// MSISDN is numeric, so treat it as "valid" for the purposes of this test
 			resp_message = smppresp.marshall();
 			LoggingUtilities.hexDump(
-				"SUBMIT_SM_RESP:",
-				resp_message,
-				resp_message.length);
-			if (smsc.isDecodePdus())
+					"SUBMIT_SM_RESP:",
+					resp_message,
+					resp_message.length);
+			if (smsc.isDecodePdus()) {
 				LoggingUtilities.logDecodedPdu(smppresp);
+			}
 			smsc.incSubmitSmOK();
 			connection.writeResponse(resp_message);
 			// If loopback is switched on, have an SMPPReceiver object deliver this message back to the client
@@ -96,26 +106,28 @@ public class TestProtocolHandler1 extends StandardProtocolHandler {
 		} catch (NumberFormatException nfe) {
 			// MSISDN treated as invalid
 			logger.debug(
-				"'Invalid' MSISDN. This protocol handler treats non-numeric MSISDN as invalid for testing purposes");
+					"'Invalid' MSISDN. This protocol handler treats non-numeric MSISDN as invalid for testing purposes");
 			smsc.incSubmitSmERR();
 			resp_message =
-				smppresp.errorResponse(
-					smppresp.getCmd_id(),
-					PduConstants.ESME_RINVDSTADR,
-					smppresp.getSeq_no());
+					smppresp.errorResponse(
+							smppresp.getCmd_id(),
+							PduConstants.ESME_RINVDSTADR,
+							smppresp.getSeq_no());
 			LoggingUtilities.hexDump(
-				"SUBMIT_SM_RESP following validation error:",
-				resp_message,
-				resp_message.length);
-			if (smsc.isDecodePdus())
+					"SUBMIT_SM_RESP following validation error:",
+					resp_message,
+					resp_message.length);
+			if (smsc.isDecodePdus()) {
 				LoggingUtilities.logDecodedPdu(smppresp);
+			}
 			connection.writeResponse(resp_message);
 		}
 
 	}
+
 	/**
 	 * Custom variation of submit_multi handler. This implementation will treat
-	 * any non-numeric destinatation address as invalid 
+	 * any non-numeric destinatation address as invalid
 	 */
 	void getSubmitMultiResponse(byte[] message, int len) throws Exception {
 		LoggingUtilities.hexDump("Custom SUBMIT_MULTI:", message, len);
@@ -130,14 +142,14 @@ public class TestProtocolHandler1 extends StandardProtocolHandler {
 		// Validate session
 		if ((!session.isBound()) || (!session.isTransmitter())) {
 			logger.debug(
-				"Invalid bind state. Must be bound as transmitter for this PDU");
+					"Invalid bind state. Must be bound as transmitter for this PDU");
 			wasInvalidBindState = true;
 			smsc.incSubmitMultiERR();
 			connection.writeResponse(
-				smppresp.errorResponse(
-					smppresp.getCmd_id(),
-					PduConstants.ESME_RINVBNDSTS,
-					smppresp.getSeq_no()));
+					smppresp.errorResponse(
+							smppresp.getCmd_id(),
+							PduConstants.ESME_RINVBNDSTS,
+							smppresp.getSeq_no()));
 		}
 
 		// Validate each destination address
@@ -156,19 +168,19 @@ public class TestProtocolHandler1 extends StandardProtocolHandler {
 				} catch (NumberFormatException nfe) {
 					// MSISDN treated as invalid
 					logger.debug(
-						"'Invalid' MSISDN "
-							+ sme.getSme_ton()
-							+ ","
-							+ sme.getSme_npi()
-							+ ","
-							+ dest
-							+ ". This protocol handler treats non-numeric MSISDN as invalid for testing purposes");
+							"'Invalid' MSISDN "
+									+ sme.getSme_ton()
+									+ ","
+									+ sme.getSme_npi()
+									+ ","
+									+ dest
+									+ ". This protocol handler treats non-numeric MSISDN as invalid for testing purposes");
 					UnsuccessSME usme =
-						new UnsuccessSME(
-							sme.getSme_ton(),
-							sme.getSme_npi(),
-							sme.getSme_address(),
-							PduConstants.ESME_RINVDSTADR);
+							new UnsuccessSME(
+									sme.getSme_ton(),
+									sme.getSme_npi(),
+									sme.getSme_address(),
+									PduConstants.ESME_RINVDSTADR);
 					containedFailures = true;
 					usmes.add(usme);
 				}
@@ -185,13 +197,14 @@ public class TestProtocolHandler1 extends StandardProtocolHandler {
 		resp_message = smppresp.marshall();
 
 		LoggingUtilities.hexDump(
-			"SUBMIT_MULTI_RESP:",
-			resp_message,
-			resp_message.length);
-		if (!containedFailures)
+				"SUBMIT_MULTI_RESP:",
+				resp_message,
+				resp_message.length);
+		if (!containedFailures) {
 			smsc.incSubmitMultiOK();
-		else
+		} else {
 			smsc.incSubmitMultiERR();
+		}
 
 		connection.writeResponse(resp_message);
 	}

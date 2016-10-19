@@ -26,9 +26,10 @@
  ****************************************************************************/
 
 package com.seleniumsoftware.SMPPSim.pdu;
+
 import com.seleniumsoftware.SMPPSim.pdu.util.PduUtilities;
 
-import java.util.*;
+import java.util.Date;
 
 public class QuerySMResp extends Response implements Marshaller {
 
@@ -59,39 +60,19 @@ public class QuerySMResp extends Response implements Marshaller {
 		super.prepareHeaderForMarshalling();
 		out.write(PduUtilities.stringToNullTerminatedByteArray(original_message_id));
 		out.write(PduUtilities.stringToNullTerminatedByteArray(final_date));
-		out.write(PduUtilities.makeByteArrayFromInt(message_state,1));
-		out.write(PduUtilities.makeByteArrayFromInt(error_code,1));
+		out.write(PduUtilities.makeByteArrayFromInt(message_state, 1));
+		out.write(PduUtilities.makeByteArrayFromInt(error_code, 1));
 		byte[] response = out.toByteArray();
 		int l = response.length;
 		response = PduUtilities.setPduLength(response, l);
 		return response;
 	}
+
 	/**
 	 * @return
 	 */
 	public int getError_code() {
 		return error_code;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getFinal_date() {
-		return final_date;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getMessage_state() {
-		return message_state;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getOriginal_message_id() {
-		return original_message_id;
 	}
 
 	/**
@@ -102,6 +83,13 @@ public class QuerySMResp extends Response implements Marshaller {
 	}
 
 	/**
+	 * @return
+	 */
+	public String getFinal_date() {
+		return final_date;
+	}
+
+	/**
 	 * @param string
 	 */
 	public void setFinal_date(String string) {
@@ -109,10 +97,24 @@ public class QuerySMResp extends Response implements Marshaller {
 	}
 
 	/**
+	 * @return
+	 */
+	public int getMessage_state() {
+		return message_state;
+	}
+
+	/**
 	 * @param i
 	 */
 	public void setMessage_state(int i) {
 		message_state = i;
+	}
+
+	/**
+	 * @return
+	 */
+	public String getOriginal_message_id() {
+		return original_message_id;
 	}
 
 	/**
@@ -126,11 +128,11 @@ public class QuerySMResp extends Response implements Marshaller {
 	 * *returns String representation of PDU
 	 */
 	public String toString() {
-		return 	super.toString()+","+
-				"original_message_id="+original_message_id+","+
-				"final_date="+final_date+","+
-				"message_state="+message_state+","+
-				"error_code="+error_code;
+		return super.toString() + "," +
+				"original_message_id=" + original_message_id + "," +
+				"final_date=" + final_date + "," +
+				"message_state=" + message_state + "," +
+				"error_code=" + error_code;
 	}
 
 }

@@ -24,18 +24,19 @@
  * http://www.seleniumsoftware.com
  * $Header: /var/cvsroot/SMPPSim2/distribution/2.6.9/SMPPSim/src/java/com/seleniumsoftware/SMPPSim/MessageQueue.java,v 1.1 2012/07/24 14:48:59 martin Exp $
  ****************************************************************************
-*/
+ */
 package com.seleniumsoftware.SMPPSim;
-import com.seleniumsoftware.SMPPSim.pdu.*;
 
-import java.util.*;
+import com.seleniumsoftware.SMPPSim.pdu.Pdu;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Vector;
+
 public class MessageQueue {
-    
-    private static Logger logger = LoggerFactory.getLogger(MessageQueue.class);
-//	private static Logger logger = Logger.getLogger("com.seleniumsoftware.smppsim");
+
+	private static Logger logger = LoggerFactory.getLogger(MessageQueue.class);
+	//	private static Logger logger = Logger.getLogger("com.seleniumsoftware.smppsim");
 	private String queueName;
 	private Vector<Pdu> queue;
 	private Object message = new Object();
@@ -46,8 +47,7 @@ public class MessageQueue {
 	}
 
 	protected synchronized void addMessage(Pdu message) {
-		logger.debug(
-			"MessageQueue(" + queueName + ") : adding message to queue");
+		logger.debug("MessageQueue(" + queueName + ") : adding message to queue");
 		queue.add(message);
 		notifyAll();
 	}
@@ -55,17 +55,10 @@ public class MessageQueue {
 	protected synchronized Object getMessage() {
 		while (isEmpty()) {
 			try {
-				logger.debug(
-					"MessageQueue("
-						+ queueName
-						+ "):  waiting for message from queue");
+				logger.debug("MessageQueue(" + queueName + "):  waiting for message from queue");
 				wait();
 			} catch (InterruptedException e) {
-				logger.error(
-					"Exception in MessageQueue("
-						+ queueName
-						+ ") : "
-						+ e.getMessage());
+				logger.error("Exception in MessageQueue(" + queueName + ") : " + e.getMessage());
 				e.printStackTrace();
 			}
 		}

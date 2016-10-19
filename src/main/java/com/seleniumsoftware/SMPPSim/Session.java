@@ -35,6 +35,7 @@ public class Session {
 
 	public Session() {
 	}
+
 	/**
 	 * @return
 	 */
@@ -43,10 +44,24 @@ public class Session {
 	}
 
 	/**
+	 * @param b
+	 */
+	public void setBound(boolean b) {
+		isBound = b;
+	}
+
+	/**
 	 * @return
 	 */
 	public boolean isReceiver() {
 		return isReceiver;
+	}
+
+	/**
+	 * @param b
+	 */
+	public void setReceiver(boolean b) {
+		isReceiver = b;
 	}
 
 	/**
@@ -59,26 +74,14 @@ public class Session {
 	/**
 	 * @param b
 	 */
-	public void setBound(boolean b) {
-		isBound = b;
-	}
-
-	/**
-	 * @param b
-	 */
-	public void setReceiver(boolean b) {
-		isReceiver = b;
-	}
-
-	/**
-	 * @param b
-	 */
 	public void setTransmitter(boolean b) {
 		isTransmitter = b;
 	}
+
 	public int getInterface_version() {
 		return interface_version;
 	}
+
 	public void setInterface_version(int interfaceVersion) {
 		interface_version = interfaceVersion;
 	}

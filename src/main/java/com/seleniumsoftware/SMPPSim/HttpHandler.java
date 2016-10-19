@@ -29,21 +29,35 @@
 package com.seleniumsoftware.SMPPSim;
 
 import com.seleniumsoftware.SMPPSim.exceptions.InvalidHexStringlException;
-import com.seleniumsoftware.SMPPSim.pdu.*;
+import com.seleniumsoftware.SMPPSim.pdu.DeliverSM;
 import com.seleniumsoftware.SMPPSim.pdu.util.PduUtilities;
 import com.seleniumsoftware.SMPPSim.util.Utilities;
-
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import java.text.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.Socket;
+import java.net.URLConnection;
+import java.net.URLDecoder;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.NoSuchElementException;
+import java.util.StringTokenizer;
 
 /**
  * Class <code>HttpHandler</code> is a very simple http server which provides
  * basic facilities to control and monitor the SMPPSim server
- * 
+ *
  * @author Martin Woolley, www.seleniumsoftware.com
  */
 
@@ -51,228 +65,118 @@ public class HttpHandler implements Runnable {
 //	private static Logger logger = Logger
 //			.getLogger("com.seleniumsoftware.smppsim");
 
-    private static Logger logger = LoggerFactory.getLogger(DeterministicLifeCycleManager.class);
-    
-	private Smsc smsc = Smsc.getInstance();
-
-	private DeliverSM newMessage;
-
-	private static byte[] http200Response;
-
 	private static final String http200Message = "HTTP/1.1 200\r\n\r\nOK\r\n";
-
-	private static byte[] http400Response;
-
 	private static final String http400Message = "HTTP/1.1 400\r\n\r\nREQUEST NOT UNDERSTOOD BY SERVER\r\n";
-
-	private static byte[] http500Response;
-
 	private static final String http500Message = "HTTP/1.1 500\r\n\r\nAN INTERNAL ERROR HAS OCCURRED IN THE MANAGEMENT SERVER\r\n";
-
-	byte[] response;
-
-	boolean responseOK;
-
-	boolean firstStopRequest = true;
-
-	boolean running = true;
-
-	private SimpleDateFormat sft;
-
-	private ArrayList<String> authorisedFiles;
-
 	private static final String delim = "$$";
-
 	private static final String STARTTIME = "$$starttime$$";
-
 	private static final String MESSAGE = "$$message$$";
-
 	private static final String TXBOUND = "$$txbound$$";
-
 	private static final String RXBOUND = "$$rxbound$$";
-
 	private static final String TRXBOUND = "$$trxbound$$";
-
 	private static final String IQCOUNT = "$$iqcount$$";
-
 	private static final String OQCOUNT = "$$oqcount$$";
-
 	private static final String PQCOUNT = "$$pqcount$$";
-
 	private static final String VERSION = "$$version$$";
-
 	private static final String BINDTRANSMITTER_OK = "$$bindtransmitter_ok$$";
-
 	private static final String BINDTRANSMITTER_ERR = "$$bindtransmitter_err$$";
-
 	private static final String BINDRECEIVER_OK = "$$bindreceiver_ok$$";
-
 	private static final String BINDRECEIVER_ERR = "$$bindreceiver_err$$";
-
 	private static final String BINDTRANSCEIVER_OK = "$$bindtransceiver_ok$$";
-
 	private static final String BINDTRANSCEIVER_ERR = "$$bindtransceiver_err$$";
-
 	private static final String OUTBIND_OK = "$$outbind_ok$$";
-
 	private static final String OUTBIND_ERR = "$$outbind_err$$";
-
 	private static final String SUBMIT_SM_OK = "$$submit_sm_ok$$";
-
 	private static final String SUBMIT_SM_ERR = "$$submit_sm_err$$";
-
 	private static final String SUBMIT_MULTI_OK = "$$submit_multi_ok$$";
-
 	private static final String SUBMIT_MULTI_ERR = "$$submit_multi_err$$";
-
 	private static final String DELIVER_SM_OK = "$$deliver_sm_ok$$";
-
 	private static final String DELIVER_SM_ERR = "$$deliver_sm_err$$";
-
 	private static final String DATA_SM_OK = "$$data_sm_ok$$";
-
 	private static final String DATA_SM_ERR = "$$data_sm_err$$";
-
 	private static final String QUERY_SM_OK = "$$query_sm_ok$$";
-
 	private static final String QUERY_SM_ERR = "$$query_sm_err$$";
-
 	private static final String CANCEL_SM_OK = "$$cancel_sm_ok$$";
-
 	private static final String CANCEL_SM_ERR = "$$cancel_sm_err$$";
-
 	private static final String REPLACE_SM_OK = "$$replace_sm_ok$$";
-
 	private static final String REPLACE_SM_ERR = "$$replace_sm_err$$";
-
 	private static final String ENQUIRE_LINK_OK = "$$enquire_link_ok$$";
-
 	private static final String ENQUIRE_LINK_ERR = "$$enquire_link_err$$";
-
 	private static final String UNBIND_OK = "$$unbind_ok$$";
-
 	private static final String UNBIND_ERR = "$$unbind_err$$";
-
 	private static final String GENERIC_NAK_OK = "$$generic_nak_ok$$";
-
 	private static final String GENERIC_NAK_ERR = "$$generic_nak_err$$";
-
-	private File docRoot;
-
-	private String docRootName;
-
-	private String controlPanelMessage = "";
-
-	// inject mo params
-
 	private static final String SHORT_MESSAGE = "$$short_message$$";
-
 	private static final String FORMAT = "$$format$$";
-
 	private static final String SOURCE_ADDR = "$$source_addr$$";
-
 	private static final String DEST_ADDR = "$$dest_addr$$";
-
 	private static final String SERVICE_TYPE = "$$service_type$$";
-
 	private static final String SOURCE_ADDR_TON = "$$source_addr_ton$$";
-
 	private static final String SOURCE_ADDR_NPI = "$$source_addr_npi$$";
-
 	private static final String DEST_ADDR_TON = "$$dest_addr_ton$$";
-
 	private static final String DEST_ADDR_NPI = "$$dest_addr_npi$$";
-
 	private static final String ESM_CLASS = "$$esm_class$$";
-
 	private static final String PROTOCOL_ID = "$$protocol_id$$";
-
 	private static final String PRIORITY_FLAG = "$$priority_flag$$";
-
 	private static final String SCHEDULE_DELIVERY_TIME = "$$schedule_delivery_time$$";
-
 	private static final String VALIDITY_PERIOD = "$$validity_period$$";
-
 	private static final String REGISTERED_DELIVERY_FLAG = "$$registered_delivery_flag$$";
 
+	// inject mo params
 	private static final String REPLACE_IF_PRESENT_FLAG = "$$replace_if_present_flag$$";
-
 	private static final String DATA_CODING = "$$data_coding$$";
-
 	private static final String SM_DEFAULT_MESSAGE_ID = "$$sm_default_message_id$$";
-
 	private static final String SM_LENGTH = "$$sm_length$$";
-
 	private static final String USER_MESSAGE_REFERENCE = "$$user_message_reference$$";
-
 	private static final String SOURCE_PORT = "$$source_port$$";
-
 	private static final String DESTINATION_PORT = "$$destination_port$$";
-
 	private static final String SAR_MSG_REF_NUM = "$$sar_msg_ref_num$$";
-
 	private static final String SAR_TOTAL_SEGMENTS = "$$sar_total_segments$$";
-
 	private static final String SAR_SEGMENT_SEQNUM = "$$sar_segment_seqnum$$";
-
 	private static final String USER_RESPONSE_CODE = "$$user_response_code$$";
-
 	private static final String PRIVACY_INDICATOR = "$$privacy_indicator$$";
-
 	private static final String PAYLOAD_TYPE = "$$payload_type$$";
-
 	private static final String MESSAGE_PAYLOAD = "$$message_payload$$";
-
 	private static final String CALLBACK_NUM = "$$callback_num$$";
-
 	private static final String SOURCE_SUBADDRESS = "$$source_subaddress$$";
-
 	private static final String DEST_SUBADDRESS = "$$dest_subaddress$$";
-
 	private static final String LANGUAGE_INDICATOR = "$$language_indicator$$";
-
 	private static final String TLV1_TAG = "$$tlv1_tag$$";
-
 	private static final String TLV2_TAG = "$$tlv2_tag$$";
-
 	private static final String TLV3_TAG = "$$tlv3_tag$$";
-
 	private static final String TLV4_TAG = "$$tlv4_tag$$";
-
 	private static final String TLV5_TAG = "$$tlv5_tag$$";
-
 	private static final String TLV6_TAG = "$$tlv6_tag$$";
-
 	private static final String TLV7_TAG = "$$tlv7_tag$$";
-
 	private static final String TLV1_LEN = "$$tlv1_len$$";
-
 	private static final String TLV2_LEN = "$$tlv2_len$$";
-
 	private static final String TLV3_LEN = "$$tlv3_len$$";
-
 	private static final String TLV4_LEN = "$$tlv4_len$$";
-
 	private static final String TLV5_LEN = "$$tlv5_len$$";
-
 	private static final String TLV6_LEN = "$$tlv6_len$$";
-
 	private static final String TLV7_LEN = "$$tlv7_len$$";
-
 	private static final String TLV1_VAL = "$$tlv1_val$$";
-
 	private static final String TLV2_VAL = "$$tlv2_val$$";
-
 	private static final String TLV3_VAL = "$$tlv3_val$$";
-
 	private static final String TLV4_VAL = "$$tlv4_val$$";
-
 	private static final String TLV5_VAL = "$$tlv5_val$$";
-
 	private static final String TLV6_VAL = "$$tlv6_val$$";
-
 	private static final String TLV7_VAL = "$$tlv7_val$$";
-
+	private static Logger logger = LoggerFactory.getLogger(DeterministicLifeCycleManager.class);
+	private static byte[] http200Response;
+	private static byte[] http400Response;
+	private static byte[] http500Response;
+	byte[] response;
+	boolean responseOK;
+	boolean firstStopRequest = true;
+	boolean running = true;
+	private Smsc smsc = Smsc.getInstance();
+	private DeliverSM newMessage;
+	private SimpleDateFormat sft;
+	private ArrayList<String> authorisedFiles;
+	private File docRoot;
+	private String docRootName;
+	private String controlPanelMessage = "";
 	private String short_message = "Hello from SMPPSim";
 
 	private boolean shortMessageInHex = false;
@@ -469,17 +373,18 @@ public class HttpHandler implements Runnable {
 
 		boolean authorisedFile = false;
 
-		if (authorisedFiles.indexOf(filename) > -1)
+		if (authorisedFiles.indexOf(filename) > -1) {
 			authorisedFile = true;
-		else {
-			if (filename.equals("/"))
+		} else {
+			if (filename.equals("/")) {
 				authorisedFile = true;
-			else if (filename.equals("/inject_mo")) {
+			} else if (filename.equals("/inject_mo")) {
 				authorisedFile = true;
 				command = "inject";
-			} else
+			} else {
 				logger.debug("Unauthorised file <" + filename
 						+ "> requested - ignoring request");
+			}
 		}
 
 		if (!authorisedFile) {
@@ -491,7 +396,7 @@ public class HttpHandler implements Runnable {
 			controlPanelMessage = "";
 			return injectMo(target);
 		}
-		
+
 		if (command.equalsIgnoreCase("stats")) {
 			controlPanelMessage = "";
 			return stats();
@@ -506,8 +411,9 @@ public class HttpHandler implements Runnable {
 		}
 
 		if (filename.endsWith(".gif") || filename.endsWith(".jpg")
-				|| filename.endsWith(".css"))
+				|| filename.endsWith(".css")) {
 			command = "plain-get";
+		}
 
 		if (filename.equals(SMPPSim.getInjectMoPage())) {
 			logger.debug("The InjectMO page has been requested");
@@ -568,8 +474,9 @@ public class HttpHandler implements Runnable {
 		// Build up the path to the requested file in a
 		// platform independent way. URL's use '/' in their
 		// path, but this platform may not.
-		if (filename.indexOf("..") != -1)
+		if (filename.indexOf("..") != -1) {
 			return null;
+		}
 		requestedFile = new File(docRootName + filename);
 		logger.debug("requestedFile=" + requestedFile.getName());
 		if (requestedFile.exists() && requestedFile.isDirectory()) {
@@ -602,7 +509,7 @@ public class HttpHandler implements Runnable {
 			String contentType = URLConnection
 					.guessContentTypeFromStream(fileIn);
 			if (requestedFile.getAbsolutePath().endsWith(".htm")) {
-				contentType="text/html";
+				contentType = "text/html";
 			}
 			logger.debug("Content Type thought to be:" + contentType);
 			byte[] headerBytes = createHeaderBytes("HTTP/1.0 200 OK", fileLen,
@@ -660,194 +567,284 @@ public class HttpHandler implements Runnable {
 	private String getParamValue(String paramName) {
 		logger.debug("Getting param value for <" + paramName + ">");
 
-		if (paramName.equals(MESSAGE))
+		if (paramName.equals(MESSAGE)) {
 			return controlPanelMessage;
-		if (paramName.equals(STARTTIME))
+		}
+		if (paramName.equals(STARTTIME)) {
 			return smsc.getStartTimeString();
-		if (paramName.equals(VERSION))
+		}
+		if (paramName.equals(VERSION)) {
 			return SMPPSim.getVersion();
-		if (paramName.equals(TXBOUND))
+		}
+		if (paramName.equals(TXBOUND)) {
 			return Integer.toString(smsc.getTxBoundCount());
-		if (paramName.equals(RXBOUND))
+		}
+		if (paramName.equals(RXBOUND)) {
 			return Integer.toString(smsc.getRxBoundCount());
-		if (paramName.equals(TRXBOUND))
+		}
+		if (paramName.equals(TRXBOUND)) {
 			return Integer.toString(smsc.getTrxBoundCount());
-		if (paramName.equals(IQCOUNT))
+		}
+		if (paramName.equals(IQCOUNT)) {
 			return Integer.toString(smsc.getInbound_queue_size());
-		if (paramName.equals(PQCOUNT))
+		}
+		if (paramName.equals(PQCOUNT)) {
 			return Integer.toString(smsc.getPending_queue_size());
-		if (paramName.equals(OQCOUNT))
+		}
+		if (paramName.equals(OQCOUNT)) {
 			return Integer.toString(smsc.getOutbound_queue_size());
-		if (paramName.equals(BINDTRANSMITTER_OK))
+		}
+		if (paramName.equals(BINDTRANSMITTER_OK)) {
 			return Long.toString(smsc.getBindTransmitterOK());
-		if (paramName.equals(BINDTRANSMITTER_ERR))
+		}
+		if (paramName.equals(BINDTRANSMITTER_ERR)) {
 			return Long.toString(smsc.getBindTransmitterERR());
-		if (paramName.equals(BINDRECEIVER_OK))
+		}
+		if (paramName.equals(BINDRECEIVER_OK)) {
 			return Long.toString(smsc.getBindReceiverOK());
-		if (paramName.equals(BINDRECEIVER_ERR))
+		}
+		if (paramName.equals(BINDRECEIVER_ERR)) {
 			return Long.toString(smsc.getBindReceiverERR());
-		if (paramName.equals(BINDTRANSCEIVER_OK))
+		}
+		if (paramName.equals(BINDTRANSCEIVER_OK)) {
 			return Long.toString(smsc.getBindTransceiverOK());
-		if (paramName.equals(BINDTRANSCEIVER_ERR))
+		}
+		if (paramName.equals(BINDTRANSCEIVER_ERR)) {
 			return Long.toString(smsc.getBindTransceiverERR());
-		if (paramName.equals(OUTBIND_OK))
+		}
+		if (paramName.equals(OUTBIND_OK)) {
 			return Long.toString(smsc.getOutbindOK());
-		if (paramName.equals(OUTBIND_ERR))
+		}
+		if (paramName.equals(OUTBIND_ERR)) {
 			return Long.toString(smsc.getOutbindERR());
-		if (paramName.equals(SUBMIT_SM_OK))
+		}
+		if (paramName.equals(SUBMIT_SM_OK)) {
 			return Long.toString(smsc.getSubmitSmOK());
-		if (paramName.equals(SUBMIT_SM_ERR))
+		}
+		if (paramName.equals(SUBMIT_SM_ERR)) {
 			return Long.toString(smsc.getSubmitSmERR());
-		if (paramName.equals(SUBMIT_MULTI_OK))
+		}
+		if (paramName.equals(SUBMIT_MULTI_OK)) {
 			return Long.toString(smsc.getSubmitMultiOK());
-		if (paramName.equals(SUBMIT_MULTI_ERR))
+		}
+		if (paramName.equals(SUBMIT_MULTI_ERR)) {
 			return Long.toString(smsc.getSubmitMultiERR());
-		if (paramName.equals(DELIVER_SM_OK))
+		}
+		if (paramName.equals(DELIVER_SM_OK)) {
 			return Long.toString(smsc.getDeliverSmOK());
-		if (paramName.equals(DELIVER_SM_ERR))
+		}
+		if (paramName.equals(DELIVER_SM_ERR)) {
 			return Long.toString(smsc.getDeliverSmERR());
-		if (paramName.equals(DATA_SM_OK))
+		}
+		if (paramName.equals(DATA_SM_OK)) {
 			return Long.toString(smsc.getDataSmOK());
-		if (paramName.equals(DATA_SM_ERR))
+		}
+		if (paramName.equals(DATA_SM_ERR)) {
 			return Long.toString(smsc.getDataSmERR());
-		if (paramName.equals(QUERY_SM_OK))
+		}
+		if (paramName.equals(QUERY_SM_OK)) {
 			return Long.toString(smsc.getQuerySmOK());
-		if (paramName.equals(QUERY_SM_ERR))
+		}
+		if (paramName.equals(QUERY_SM_ERR)) {
 			return Long.toString(smsc.getQuerySmERR());
-		if (paramName.equals(CANCEL_SM_OK))
+		}
+		if (paramName.equals(CANCEL_SM_OK)) {
 			return Long.toString(smsc.getCancelSmOK());
-		if (paramName.equals(CANCEL_SM_ERR))
+		}
+		if (paramName.equals(CANCEL_SM_ERR)) {
 			return Long.toString(smsc.getCancelSmERR());
-		if (paramName.equals(REPLACE_SM_OK))
+		}
+		if (paramName.equals(REPLACE_SM_OK)) {
 			return Long.toString(smsc.getReplaceSmOK());
-		if (paramName.equals(REPLACE_SM_ERR))
+		}
+		if (paramName.equals(REPLACE_SM_ERR)) {
 			return Long.toString(smsc.getReplaceSmERR());
-		if (paramName.equals(ENQUIRE_LINK_OK))
+		}
+		if (paramName.equals(ENQUIRE_LINK_OK)) {
 			return Long.toString(smsc.getEnquireLinkOK());
-		if (paramName.equals(ENQUIRE_LINK_ERR))
+		}
+		if (paramName.equals(ENQUIRE_LINK_ERR)) {
 			return Long.toString(smsc.getEnquireLinkERR());
-		if (paramName.equals(UNBIND_OK))
+		}
+		if (paramName.equals(UNBIND_OK)) {
 			return Long.toString(smsc.getUnbindOK());
-		if (paramName.equals(UNBIND_ERR))
+		}
+		if (paramName.equals(UNBIND_ERR)) {
 			return Long.toString(smsc.getUnbindERR());
-		if (paramName.equals(GENERIC_NAK_OK))
+		}
+		if (paramName.equals(GENERIC_NAK_OK)) {
 			return Long.toString(smsc.getGenericNakOK());
-		if (paramName.equals(GENERIC_NAK_ERR))
+		}
+		if (paramName.equals(GENERIC_NAK_ERR)) {
 			return Long.toString(smsc.getGenericNakERR());
+		}
 		// inject_mo form
 		if (paramName.equals(SHORT_MESSAGE)) {
 			return short_message;
 		}
 		if (paramName.equals(FORMAT)) {
-			if (shortMessageInHex)
+			if (shortMessageInHex) {
 				return "checked";
-			else
+			} else {
 				return "";
+			}
 		}
-		if (paramName.equals(SOURCE_ADDR))
+		if (paramName.equals(SOURCE_ADDR)) {
 			return source_addr;
-		if (paramName.equals(DEST_ADDR))
+		}
+		if (paramName.equals(DEST_ADDR)) {
 			return dest_addr;
-		if (paramName.equals(SERVICE_TYPE))
+		}
+		if (paramName.equals(SERVICE_TYPE)) {
 			return service_type;
-		if (paramName.equals(SOURCE_ADDR_TON))
+		}
+		if (paramName.equals(SOURCE_ADDR_TON)) {
 			return source_addr_ton;
-		if (paramName.equals(SOURCE_ADDR_NPI))
+		}
+		if (paramName.equals(SOURCE_ADDR_NPI)) {
 			return source_addr_npi;
-		if (paramName.equals(DEST_ADDR_TON))
+		}
+		if (paramName.equals(DEST_ADDR_TON)) {
 			return dest_addr_ton;
-		if (paramName.equals(DEST_ADDR_NPI))
+		}
+		if (paramName.equals(DEST_ADDR_NPI)) {
 			return dest_addr_npi;
-		if (paramName.equals(ESM_CLASS))
+		}
+		if (paramName.equals(ESM_CLASS)) {
 			return esm_class;
-		if (paramName.equals(PROTOCOL_ID))
+		}
+		if (paramName.equals(PROTOCOL_ID)) {
 			return protocol_id;
-		if (paramName.equals(PRIORITY_FLAG))
+		}
+		if (paramName.equals(PRIORITY_FLAG)) {
 			return priority_flag;
-		if (paramName.equals(SCHEDULE_DELIVERY_TIME))
+		}
+		if (paramName.equals(SCHEDULE_DELIVERY_TIME)) {
 			return schedule_delivery_time;
-		if (paramName.equals(VALIDITY_PERIOD))
+		}
+		if (paramName.equals(VALIDITY_PERIOD)) {
 			return validity_period;
-		if (paramName.equals(REGISTERED_DELIVERY_FLAG))
+		}
+		if (paramName.equals(REGISTERED_DELIVERY_FLAG)) {
 			return registered_delivery_flag;
-		if (paramName.equals(REPLACE_IF_PRESENT_FLAG))
+		}
+		if (paramName.equals(REPLACE_IF_PRESENT_FLAG)) {
 			return replace_if_present_flag;
-		if (paramName.equals(DATA_CODING))
+		}
+		if (paramName.equals(DATA_CODING)) {
 			return data_coding;
-		if (paramName.equals(SM_DEFAULT_MESSAGE_ID))
+		}
+		if (paramName.equals(SM_DEFAULT_MESSAGE_ID)) {
 			return sm_default_message_id;
-		if (paramName.equals(SM_LENGTH))
+		}
+		if (paramName.equals(SM_LENGTH)) {
 			return sm_length;
-		if (paramName.equals(USER_MESSAGE_REFERENCE))
+		}
+		if (paramName.equals(USER_MESSAGE_REFERENCE)) {
 			return user_message_reference;
-		if (paramName.equals(SOURCE_PORT))
+		}
+		if (paramName.equals(SOURCE_PORT)) {
 			return source_port;
-		if (paramName.equals(DESTINATION_PORT))
+		}
+		if (paramName.equals(DESTINATION_PORT)) {
 			return destination_port;
-		if (paramName.equals(SAR_MSG_REF_NUM))
+		}
+		if (paramName.equals(SAR_MSG_REF_NUM)) {
 			return sar_msg_ref_num;
-		if (paramName.equals(SAR_TOTAL_SEGMENTS))
+		}
+		if (paramName.equals(SAR_TOTAL_SEGMENTS)) {
 			return sar_msg_ref_num;
-		if (paramName.equals(SAR_SEGMENT_SEQNUM))
+		}
+		if (paramName.equals(SAR_SEGMENT_SEQNUM)) {
 			return sar_segment_seqnum;
-		if (paramName.equals(USER_RESPONSE_CODE))
+		}
+		if (paramName.equals(USER_RESPONSE_CODE)) {
 			return user_response_code;
-		if (paramName.equals(PRIVACY_INDICATOR))
+		}
+		if (paramName.equals(PRIVACY_INDICATOR)) {
 			return privacy_indicator;
-		if (paramName.equals(PAYLOAD_TYPE))
+		}
+		if (paramName.equals(PAYLOAD_TYPE)) {
 			return privacy_indicator;
-		if (paramName.equals(MESSAGE_PAYLOAD))
+		}
+		if (paramName.equals(MESSAGE_PAYLOAD)) {
 			return message_payload;
-		if (paramName.equals(CALLBACK_NUM))
+		}
+		if (paramName.equals(CALLBACK_NUM)) {
 			return callback_num;
-		if (paramName.equals(SOURCE_SUBADDRESS))
+		}
+		if (paramName.equals(SOURCE_SUBADDRESS)) {
 			return source_subaddress;
-		if (paramName.equals(DEST_SUBADDRESS))
+		}
+		if (paramName.equals(DEST_SUBADDRESS)) {
 			return dest_subaddress;
-		if (paramName.equals(LANGUAGE_INDICATOR))
+		}
+		if (paramName.equals(LANGUAGE_INDICATOR)) {
 			return language_indicator;
-		if (paramName.equals(TLV1_TAG))
+		}
+		if (paramName.equals(TLV1_TAG)) {
 			return tlv1_tag;
-		if (paramName.equals(TLV2_TAG))
+		}
+		if (paramName.equals(TLV2_TAG)) {
 			return tlv2_tag;
-		if (paramName.equals(TLV3_TAG))
+		}
+		if (paramName.equals(TLV3_TAG)) {
 			return tlv3_tag;
-		if (paramName.equals(TLV4_TAG))
+		}
+		if (paramName.equals(TLV4_TAG)) {
 			return tlv4_tag;
-		if (paramName.equals(TLV5_TAG))
+		}
+		if (paramName.equals(TLV5_TAG)) {
 			return tlv5_tag;
-		if (paramName.equals(TLV6_TAG))
+		}
+		if (paramName.equals(TLV6_TAG)) {
 			return tlv6_tag;
-		if (paramName.equals(TLV7_TAG))
+		}
+		if (paramName.equals(TLV7_TAG)) {
 			return tlv7_tag;
-		if (paramName.equals(TLV1_LEN))
+		}
+		if (paramName.equals(TLV1_LEN)) {
 			return tlv1_len;
-		if (paramName.equals(TLV2_LEN))
+		}
+		if (paramName.equals(TLV2_LEN)) {
 			return tlv2_len;
-		if (paramName.equals(TLV3_LEN))
+		}
+		if (paramName.equals(TLV3_LEN)) {
 			return tlv3_len;
-		if (paramName.equals(TLV4_LEN))
+		}
+		if (paramName.equals(TLV4_LEN)) {
 			return tlv4_len;
-		if (paramName.equals(TLV5_LEN))
+		}
+		if (paramName.equals(TLV5_LEN)) {
 			return tlv5_len;
-		if (paramName.equals(TLV6_LEN))
+		}
+		if (paramName.equals(TLV6_LEN)) {
 			return tlv6_len;
-		if (paramName.equals(TLV7_LEN))
+		}
+		if (paramName.equals(TLV7_LEN)) {
 			return tlv7_len;
-		if (paramName.equals(TLV1_VAL))
+		}
+		if (paramName.equals(TLV1_VAL)) {
 			return tlv1_val;
-		if (paramName.equals(TLV2_VAL))
+		}
+		if (paramName.equals(TLV2_VAL)) {
 			return tlv2_val;
-		if (paramName.equals(TLV3_VAL))
+		}
+		if (paramName.equals(TLV3_VAL)) {
 			return tlv3_val;
-		if (paramName.equals(TLV4_VAL))
+		}
+		if (paramName.equals(TLV4_VAL)) {
 			return tlv4_val;
-		if (paramName.equals(TLV5_VAL))
+		}
+		if (paramName.equals(TLV5_VAL)) {
 			return tlv5_val;
-		if (paramName.equals(TLV6_VAL))
+		}
+		if (paramName.equals(TLV6_VAL)) {
 			return tlv6_val;
-		if (paramName.equals(TLV7_VAL))
+		}
+		if (paramName.equals(TLV7_VAL)) {
 			return tlv7_val;
+		}
 		return ("Unrecognised Parameter name " + paramName);
 	}
 
@@ -876,21 +873,21 @@ public class HttpHandler implements Runnable {
 
 	private byte[] stats() {
 
-			ByteArrayOutputStream bOut = new ByteArrayOutputStream();
-			try {
-				byte[] headerBytes = createHeaderBytes("HTTP/1.0 200 OK", -1, null);
-				bOut.write(headerBytes);
-				byte[] buf = new byte[2048];
-				String response = "submittedok="+smsc.getSubmitSmOK()+",deliveredok="+smsc.getDeliverSmOK();
-				bOut.write(response.getBytes());
-				bOut.flush();
-				bOut.close();
-				return bOut.toByteArray();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return null;
-			}
+		ByteArrayOutputStream bOut = new ByteArrayOutputStream();
+		try {
+			byte[] headerBytes = createHeaderBytes("HTTP/1.0 200 OK", -1, null);
+			bOut.write(headerBytes);
+			byte[] buf = new byte[2048];
+			String response = "submittedok=" + smsc.getSubmitSmOK() + ",deliveredok=" + smsc.getDeliverSmOK();
+			bOut.write(response.getBytes());
+			bOut.flush();
+			bOut.close();
+			return bOut.toByteArray();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
 
 	}
 
@@ -920,9 +917,9 @@ public class HttpHandler implements Runnable {
 				key = st2.nextToken();
 				if (st2.hasMoreTokens()) {
 					value = st2.nextToken();
-					if (value != null)
+					if (value != null) {
 						args.put(key, value);
-					else if (key.equals("short_message")) {
+					} else if (key.equals("short_message")) {
 						args.put(key, new String(""));
 					}
 				} else if (key.equals("short_message")) {
@@ -942,8 +939,9 @@ public class HttpHandler implements Runnable {
 			data_coding = args.get("data_coding");
 		}
 		shortMessageInHex = false;
-		if (args.containsKey(("format")))
+		if (args.containsKey(("format"))) {
 			shortMessageInHex = true;
+		}
 		if (args.containsKey("short_message")) {
 			short_message = URLDecoder.decode(args.get("short_message"),
 					"UTF-8");
@@ -952,10 +950,11 @@ public class HttpHandler implements Runnable {
 						"UTF-8");
 				String encoding = PduUtilities.getJavaEncoding((byte) smppmsg
 						.getData_coding());
-				if (encoding != null)
+				if (encoding != null) {
 					smppmsg.setShort_message(msg.getBytes(encoding));
-				else
+				} else {
 					smppmsg.setShort_message(msg.getBytes());
+				}
 			} else {
 				smppmsg.setShort_message(makeBinaryMessage(URLDecoder.decode(
 						args.get("short_message"), "UTF-8")));
@@ -1222,8 +1221,9 @@ public class HttpHandler implements Runnable {
 		while (i < l) {
 			String byteAsHex = hexNoSpaces.substring((i * 2), ((i * 2) + 2));
 			int b = (int) (Integer.parseInt(byteAsHex, 16) & 0x000000FF);
-			if (b < 0)
+			if (b < 0) {
 				b = 256 + b;
+			}
 			result[i] = (byte) b;
 			i++;
 		}
@@ -1301,19 +1301,23 @@ public class HttpHandler implements Runnable {
 	}
 
 	private int leastOf(int a, int b, int c, int d, int e) {
-		if (a < b && a < c && a < d && a < e)
+		if (a < b && a < c && a < d && a < e) {
 			return a;
-		if (b < a && b < c && b < d && b < e)
+		}
+		if (b < a && b < c && b < d && b < e) {
 			return b;
-		if (c < a && c < b && c < d && c < e)
+		}
+		if (c < a && c < b && c < d && c < e) {
 			return c;
-		if (d < a && d < b && d < c && d < e)
+		}
+		if (d < a && d < b && d < c && d < e) {
 			return d;
+		}
 		return e;
 	}
 
 	private byte[] createHeaderBytes(String resp, int contentLen,
-			String contentType) throws IOException {
+	                                 String contentType) throws IOException {
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(baos));

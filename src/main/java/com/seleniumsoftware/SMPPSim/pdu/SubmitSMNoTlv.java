@@ -27,12 +27,11 @@
 
 package com.seleniumsoftware.SMPPSim.pdu;
 
-import java.util.logging.Logger;
-
-import com.seleniumsoftware.SMPPSim.exceptions.InvalidHexStringlException;
-import com.seleniumsoftware.SMPPSim.pdu.util.*;
+import com.seleniumsoftware.SMPPSim.pdu.util.PduUtilities;
 import com.seleniumsoftware.SMPPSim.util.LoggingUtilities;
 import com.seleniumsoftware.SMPPSim.util.Utilities;
+
+import java.util.logging.Logger;
 
 public class SubmitSMNoTlv extends Request implements Demarshaller {
 
@@ -78,7 +77,7 @@ public class SubmitSMNoTlv extends Request implements Demarshaller {
 
 	public static void main(String args[]) throws Exception {
 		String msg_hex = "000000D5 00000004 00000000 0000432E 00 01 01 32 31 32 36 33 30 33 35 39 38 30 39 00 01 01 33 39 33 32 30 38 39 36 34 30 36 38 00 40 00 01 00 00 00 00 10 80 00 00 15 00 00 00 00 00 00 14 F3 00 01 00 04 00 8C 0B 00 03 20 03 01 05 04 15 8A 00 00 30 01 00 08 00 4C 00 6F 00 56 00 45 02 01 00 00 48 1C 01 00 00 00 00 00 00 00 18 00 00 00 00 00 00 00 00 3C 00 00 00 00 00 00 00 00 E7 00 00 00 00 00 00 00 03 85 80 00 00 00 00 20 00 06 04 C0 00 00 00 00 38 03 84 06 40 00 00 00 00 1C 01 CC 07 40 00 00 00 00 16 00 E8 0D 40 00 00 00 00 32 00 78 09 40 00 00 00 00 65 08 38 19 C0 00 00 00 00 C1 04 78 33 60 00 00 00 01 81 0A 78 72 20 00";
-		byte [] bytes = Utilities.getByteArrayFromHexString(msg_hex);
+		byte[] bytes = Utilities.getByteArrayFromHexString(msg_hex);
 		SubmitSMNoTlv req = new SubmitSMNoTlv();
 		req.demarshall(bytes);
 		LoggingUtilities.logDecodedPdu(req);
@@ -132,130 +131,25 @@ public class SubmitSMNoTlv extends Request implements Demarshaller {
 
 	}
 
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		sb.append(super.toString() + "," + "service_type=" + service_type + "," + "source_addr_ton=" + source_addr_ton + "," + "source_addr_npi="
+				+ source_addr_npi + "," + "source_addr=" + source_addr + "," + "dest_addr_ton=" + dest_addr_ton + "," + "dest_addr_npi=" + dest_addr_npi + ","
+				+ "dest_addr=" + destination_addr + "," + "esm_class=" + esm_class + "," + "protocol_ID=" + protocol_ID + "," + "priority_flag="
+				+ priority_flag + "," + "schedule_delivery_time=" + schedule_delivery_time + "," + "validity_period=" + validity_period + ","
+				+ "registered_delivery_flag=" + registered_delivery_flag + "," + "replace_if_present_flag=" + replace_if_present_flag + "," + "data_coding="
+				+ data_coding + "," + "sm_default_msg_id=" + sm_default_msg_id + "," + "sm_length=" + sm_length + "," + "short_message=");
+		if (sm_length > 0) {
+			sb.append(new String(short_message));
+		}
+		return sb.toString();
+	}
+
 	/**
 	 * @return
 	 */
 	public int getData_coding() {
 		return data_coding;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getDest_addr_npi() {
-		return dest_addr_npi;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getDest_addr_ton() {
-		return dest_addr_ton;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getDestination_addr() {
-		return destination_addr;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getEsm_class() {
-		return esm_class;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getPriority_flag() {
-		return priority_flag;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getProtocol_ID() {
-		return protocol_ID;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getRegistered_delivery_flag() {
-		return registered_delivery_flag;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getReplace_if_present_flag() {
-		return replace_if_present_flag;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getSchedule_delivery_time() {
-		return schedule_delivery_time;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getService_type() {
-		return service_type;
-	}
-
-	/**
-	 * @return
-	 */
-	public byte[] getShort_message() {
-		return short_message;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getSm_default_msg_id() {
-		return sm_default_msg_id;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getSm_length() {
-		return sm_length;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getSource_addr() {
-		return source_addr;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getSource_addr_npi() {
-		return source_addr_npi;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getSource_addr_ton() {
-		return source_addr_ton;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getValidity_period() {
-		return validity_period;
 	}
 
 	/**
@@ -266,10 +160,24 @@ public class SubmitSMNoTlv extends Request implements Demarshaller {
 	}
 
 	/**
+	 * @return
+	 */
+	public int getDest_addr_npi() {
+		return dest_addr_npi;
+	}
+
+	/**
 	 * @param i
 	 */
 	public void setDest_addr_npi(int i) {
 		dest_addr_npi = i;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getDest_addr_ton() {
+		return dest_addr_ton;
 	}
 
 	/**
@@ -280,10 +188,24 @@ public class SubmitSMNoTlv extends Request implements Demarshaller {
 	}
 
 	/**
+	 * @return
+	 */
+	public String getDestination_addr() {
+		return destination_addr;
+	}
+
+	/**
 	 * @param string
 	 */
 	public void setDestination_addr(String string) {
 		destination_addr = string;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getEsm_class() {
+		return esm_class;
 	}
 
 	/**
@@ -294,10 +216,24 @@ public class SubmitSMNoTlv extends Request implements Demarshaller {
 	}
 
 	/**
+	 * @return
+	 */
+	public int getPriority_flag() {
+		return priority_flag;
+	}
+
+	/**
 	 * @param i
 	 */
 	public void setPriority_flag(int i) {
 		priority_flag = i;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getProtocol_ID() {
+		return protocol_ID;
 	}
 
 	/**
@@ -308,10 +244,24 @@ public class SubmitSMNoTlv extends Request implements Demarshaller {
 	}
 
 	/**
+	 * @return
+	 */
+	public int getRegistered_delivery_flag() {
+		return registered_delivery_flag;
+	}
+
+	/**
 	 * @param i
 	 */
 	public void setRegistered_delivery_flag(int i) {
 		registered_delivery_flag = i;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getReplace_if_present_flag() {
+		return replace_if_present_flag;
 	}
 
 	/**
@@ -322,10 +272,24 @@ public class SubmitSMNoTlv extends Request implements Demarshaller {
 	}
 
 	/**
+	 * @return
+	 */
+	public String getSchedule_delivery_time() {
+		return schedule_delivery_time;
+	}
+
+	/**
 	 * @param string
 	 */
 	public void setSchedule_delivery_time(String string) {
 		schedule_delivery_time = string;
+	}
+
+	/**
+	 * @return
+	 */
+	public String getService_type() {
+		return service_type;
 	}
 
 	/**
@@ -336,10 +300,24 @@ public class SubmitSMNoTlv extends Request implements Demarshaller {
 	}
 
 	/**
+	 * @return
+	 */
+	public byte[] getShort_message() {
+		return short_message;
+	}
+
+	/**
 	 * @param string
 	 */
 	public void setShort_message(byte[] msg) {
 		short_message = msg;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getSm_default_msg_id() {
+		return sm_default_msg_id;
 	}
 
 	/**
@@ -350,10 +328,24 @@ public class SubmitSMNoTlv extends Request implements Demarshaller {
 	}
 
 	/**
+	 * @return
+	 */
+	public int getSm_length() {
+		return sm_length;
+	}
+
+	/**
 	 * @param i
 	 */
 	public void setSm_length(int i) {
 		sm_length = i;
+	}
+
+	/**
+	 * @return
+	 */
+	public String getSource_addr() {
+		return source_addr;
 	}
 
 	/**
@@ -364,10 +356,24 @@ public class SubmitSMNoTlv extends Request implements Demarshaller {
 	}
 
 	/**
+	 * @return
+	 */
+	public int getSource_addr_npi() {
+		return source_addr_npi;
+	}
+
+	/**
 	 * @param i
 	 */
 	public void setSource_addr_npi(int i) {
 		source_addr_npi = i;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getSource_addr_ton() {
+		return source_addr_ton;
 	}
 
 	/**
@@ -378,23 +384,17 @@ public class SubmitSMNoTlv extends Request implements Demarshaller {
 	}
 
 	/**
+	 * @return
+	 */
+	public String getValidity_period() {
+		return validity_period;
+	}
+
+	/**
 	 * @param string
 	 */
 	public void setValidity_period(String string) {
 		validity_period = string;
-	}
-
-	public String toString() {
-		StringBuffer sb = new StringBuffer();
-		sb.append(super.toString() + "," + "service_type=" + service_type + "," + "source_addr_ton=" + source_addr_ton + "," + "source_addr_npi="
-				+ source_addr_npi + "," + "source_addr=" + source_addr + "," + "dest_addr_ton=" + dest_addr_ton + "," + "dest_addr_npi=" + dest_addr_npi + ","
-				+ "dest_addr=" + destination_addr + "," + "esm_class=" + esm_class + "," + "protocol_ID=" + protocol_ID + "," + "priority_flag="
-				+ priority_flag + "," + "schedule_delivery_time=" + schedule_delivery_time + "," + "validity_period=" + validity_period + ","
-				+ "registered_delivery_flag=" + registered_delivery_flag + "," + "replace_if_present_flag=" + replace_if_present_flag + "," + "data_coding="
-				+ data_coding + "," + "sm_default_msg_id=" + sm_default_msg_id + "," + "sm_length=" + sm_length + "," + "short_message=");
-		if (sm_length > 0)
-			sb.append(new String(short_message));
-		return sb.toString();
 	}
 
 }

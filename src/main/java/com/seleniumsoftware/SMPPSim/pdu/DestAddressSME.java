@@ -40,20 +40,6 @@ public class DestAddressSME extends DestAddress {
 	}
 
 	/**
-	 * @return
-	 */
-	public int getSme_npi() {
-		return sme_npi;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getSme_ton() {
-		return sme_ton;
-	}
-
-	/**
 	 * @param string
 	 */
 	public void setSme_address(String string) {
@@ -61,10 +47,24 @@ public class DestAddressSME extends DestAddress {
 	}
 
 	/**
+	 * @return
+	 */
+	public int getSme_npi() {
+		return sme_npi;
+	}
+
+	/**
 	 * @param i
 	 */
 	public void setSme_npi(int i) {
 		sme_npi = i;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getSme_ton() {
+		return sme_ton;
 	}
 
 	/**
@@ -76,14 +76,14 @@ public class DestAddressSME extends DestAddress {
 
 	public String toString() {
 		return super.toString()
-			+ ","
-			+ "sme_ton="
-			+ sme_ton
-			+ ","
-			+ "sme_npi="
-			+ sme_npi
-			+ ","
-			+ "sme_address="
-			+ sme_address;
+				+ ","
+				+ "sme_ton="
+				+ sme_ton
+				+ ","
+				+ "sme_npi="
+				+ sme_npi
+				+ ","
+				+ "sme_address="
+				+ sme_address;
 	}
 }

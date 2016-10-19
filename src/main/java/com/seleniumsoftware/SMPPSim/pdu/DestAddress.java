@@ -30,7 +30,7 @@ package com.seleniumsoftware.SMPPSim.pdu;
 public class DestAddress {
 
 	private int dest_flag;
-	
+
 	/**
 	 * @return
 	 */
@@ -44,8 +44,8 @@ public class DestAddress {
 	public void setDest_flag(int i) {
 		dest_flag = i;
 	}
-	
+
 	public String toString() {
-		return "dest_flag="+dest_flag;
+		return "dest_flag=" + dest_flag;
 	}
 }

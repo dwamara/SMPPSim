@@ -1,23 +1,23 @@
 /*******************************************************************************
  * SmppPduUtilities.java
- * 
+ *
  * Copyright (C) Selenium Software Ltd 2006
- * 
+ *
  * This file is part of SMPPSim.
- * 
+ *
  * SMPPSim is free software; you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later
  * version.
- * 
+ *
  * SMPPSim is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License along with
  * SMPPSim; if not, write to the Free Software Foundation, Inc., 59 Temple
  * Place, Suite 330, Boston, MA 02111-1307 USA
- * 
+ *
  * @author martin@seleniumsoftware.com http://www.woolleynet.com
  *         http://www.seleniumsoftware.com $Header:
  *         /var/cvsroot/SMPPSim2/src/java/com/woolleynet/SMPPSim/pdu/util/PduUtilities.java,v
@@ -25,10 +25,10 @@
  ******************************************************************************/
 package com.seleniumsoftware.SMPPSim.pdu.util;
 
-import com.seleniumsoftware.SMPPSim.pdu.*;
+import com.seleniumsoftware.SMPPSim.pdu.PduConstants;
+import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
-import org.slf4j.LoggerFactory;
 
 public class PduUtilities {
 	/*
@@ -48,17 +48,18 @@ public class PduUtilities {
 	 * ISO2022JP 0 0 0 0 0 1 1 0 1 Extended Kanji JIS(X 0212-1990) : Extended,
 	 * EUC_JP 0 0 0 0 0 1 1 1 0 KS C 5601 : Extended (Korean), EUC_KR
 	 */
-	private static String[] encodings = { "default", "ASCII", null, // binary
+	private static String[] encodings = {"default", "ASCII", null, // binary
 			"ISO8859_1", null, // binary
 			"EUC_JP", "ISO8859_5", "ISO8859_8", "UTF-16BE", null, // pictograms
-																	// not
-																	// supported
+			// not
+			// supported
 			"ISO2022JP", null, // reserved
 			null, // reserved
-			"EUC_JP", "EUC_KR" };
+			"EUC_JP", "EUC_KR"};
 
-//	private static Logger logger = Logger.getLogger("com.seleniumsoftware.smppsim");
-    private static org.slf4j.Logger logger = LoggerFactory.getLogger(PduUtilities.class);
+	//	private static Logger logger = Logger.getLogger("com.seleniumsoftware.smppsim");
+	private static org.slf4j.Logger logger = LoggerFactory.getLogger(PduUtilities.class);
+
 	public static int getRandomSubmitError() {
 		return PduConstants.SUBMIT_SM_ERRORS[(int) (Math.random() * PduConstants.submitsm_error_count)];
 	}
@@ -150,17 +151,6 @@ public class PduUtilities {
 		return newInt;
 	}
 
-	public static byte[] makeByteArrayFromInt(int i, int numBytes) {
-		byte[] result = new byte[numBytes];
-		int shiftBits = (numBytes - 1) * 8;
-
-		for (int j = 0; j < numBytes; j++) {
-			result[j] = (byte) (i >>> shiftBits);
-			shiftBits -= 8;
-		}
-		return result;
-	}
-
 	public static short getShortValue(byte msb, byte lsb) throws Exception {
 		short newShort = 0x0000;
 
@@ -193,28 +183,15 @@ public class PduUtilities {
 		return pdu;
 	}
 
-	public static String byteArrayToHexString(byte in[]) {
+	public static byte[] makeByteArrayFromInt(int i, int numBytes) {
+		byte[] result = new byte[numBytes];
+		int shiftBits = (numBytes - 1) * 8;
 
-		byte ch = 0x00;
-		int i = 0;
-		if (in == null || in.length <= 0)
-			return null;
-
-		String hexchars[] = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F" };
-		StringBuffer out = new StringBuffer(in.length * 2);
-
-		while (i < in.length) {
-			ch = (byte) (in[i] & 0xF0);
-			ch = (byte) (ch >>> 4);
-			ch = (byte) (ch & 0x0F);
-			out.append(hexchars[(int) ch]);
-			ch = (byte) (in[i] & 0x0F);
-			out.append(hexchars[(int) ch]);
-			i++;
+		for (int j = 0; j < numBytes; j++) {
+			result[j] = (byte) (i >>> shiftBits);
+			shiftBits -= 8;
 		}
-		String result = new String(out);
 		return result;
-
 	}
 
 	public static byte[] makeShortTLV(short t, short value) {
@@ -259,6 +236,31 @@ public class PduUtilities {
 		return tlv;
 	}
 
+	public static String byteArrayToHexString(byte in[]) {
+
+		byte ch = 0x00;
+		int i = 0;
+		if (in == null || in.length <= 0) {
+			return null;
+		}
+
+		String hexchars[] = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"};
+		StringBuffer out = new StringBuffer(in.length * 2);
+
+		while (i < in.length) {
+			ch = (byte) (in[i] & 0xF0);
+			ch = (byte) (ch >>> 4);
+			ch = (byte) (ch & 0x0F);
+			out.append(hexchars[(int) ch]);
+			ch = (byte) (in[i] & 0x0F);
+			out.append(hexchars[(int) ch]);
+			i++;
+		}
+		String result = new String(out);
+		return result;
+
+	}
+
 	public static byte[] makeRawTLV(short t, byte[] value) {
 		logger.debug("making RawTLV:" + byteArrayToHexString(value));
 		byte[] tlv = new byte[value.length + 4];
@@ -272,10 +274,11 @@ public class PduUtilities {
 	}
 
 	public static String getJavaEncoding(byte data_coding) {
-		if (data_coding >= encodings.length || data_coding < 0)
+		if (data_coding >= encodings.length || data_coding < 0) {
 			return null;
-		else
+		} else {
 			return encodings[data_coding];
+		}
 	}
 
 	public byte[] getUnicodeMessageDataWithoutBom(String text_message) throws UnsupportedEncodingException {

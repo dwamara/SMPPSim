@@ -27,20 +27,34 @@
 
 package com.seleniumsoftware.SMPPSim;
 
-import com.seleniumsoftware.SMPPSim.exceptions.*;
-import com.seleniumsoftware.SMPPSim.pdu.*;
+import com.seleniumsoftware.SMPPSim.exceptions.InboundQueueFullException;
+import com.seleniumsoftware.SMPPSim.exceptions.InternalException;
+import com.seleniumsoftware.SMPPSim.exceptions.MessageStateNotFoundException;
+import com.seleniumsoftware.SMPPSim.pdu.CancelSM;
+import com.seleniumsoftware.SMPPSim.pdu.CancelSMResp;
+import com.seleniumsoftware.SMPPSim.pdu.DataSM;
+import com.seleniumsoftware.SMPPSim.pdu.DeliverSM;
+import com.seleniumsoftware.SMPPSim.pdu.DeliveryReceipt;
+import com.seleniumsoftware.SMPPSim.pdu.Outbind;
+import com.seleniumsoftware.SMPPSim.pdu.PduConstants;
+import com.seleniumsoftware.SMPPSim.pdu.QuerySM;
+import com.seleniumsoftware.SMPPSim.pdu.QuerySMResp;
+import com.seleniumsoftware.SMPPSim.pdu.ReplaceSM;
+import com.seleniumsoftware.SMPPSim.pdu.ReplaceSMResp;
+import com.seleniumsoftware.SMPPSim.pdu.SubmitSM;
 import com.seleniumsoftware.SMPPSim.pdu.util.PduUtilities;
-import com.seleniumsoftware.SMPPSim.util.*;
+import com.seleniumsoftware.SMPPSim.util.LoggingUtilities;
+import org.slf4j.LoggerFactory;
 
-import java.util.*;
-import java.text.*;
 import java.io.File;
-import java.io.IOException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.OutputStream;
-import java.net.*;
-import org.slf4j.LoggerFactory;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Smsc {
 
@@ -52,7 +66,7 @@ public class Smsc {
 
 	private static boolean callback_server_online = false;
 
-    private static org.slf4j.Logger logger = LoggerFactory.getLogger(OutboundQueue.class);
+	private static org.slf4j.Logger logger = LoggerFactory.getLogger(OutboundQueue.class);
 //	private static Logger logger = Logger.getLogger("com.seleniumsoftware.smppsim");
 
 	private static long message_id = 0;
@@ -62,134 +76,157 @@ public class Smsc {
 	private static byte[] SMSC_SYSTEMID;
 
 	private static boolean decodePdus;
-
+	boolean outbind_sent = false;
 	private int receiverIndex = 0;
-
 	private StandardConnectionHandler[] connectionHandlers;
-
 	private ServerSocket smpp_ss;
-
 	private HttpHandler[] httpcontrollers;
-
 	private ServerSocket css;
-
 	private MoService ds;
-
 	private Thread deliveryService;
-
 	private InboundQueue iq;
-
 	private OutboundQueue oq;
-
 	private DelayedDrQueue drq;
-
 	private LifeCycleManager lcm;
-
 	private Thread lifecycleService;
-
 	private Thread inboundQueueService;
-
 	private int inbound_queue_capacity = 100;
 
-	private int outbound_queue_capacity = 20000;
-
 	// PDU capture
-
+	private int outbound_queue_capacity = 20000;
 	private File smeBinaryFile;
-
 	private FileOutputStream smeBinary;
-
 	private File smppsimBinaryFile;
-
 	private FileOutputStream smppsimBinary;
-
 	private File smeDecodedFile;
-
 	private FileWriter smeDecoded;
-
 	private File smppsimDecodedFile;
 
-	private FileWriter smppsimDecoded;
-
 	// Stats
-
+	private FileWriter smppsimDecoded;
 	private Date startTime;
-
 	private String startTimeString;
-
 	private int txBoundCount = 0;
-
 	private int rxBoundCount = 0;
-
 	private int trxBoundCount = 0;
-
 	private long bindTransmitterOK = 0;
-
 	private long bindTransceiverOK = 0;
-
 	private long bindReceiverOK = 0;
-
 	private long bindTransmitterERR = 0;
-
 	private long bindTransceiverERR = 0;
-
 	private long bindReceiverERR = 0;
-
 	private long submitSmOK = 0;
-
 	private long submitSmERR = 0;
-
 	private long submitMultiOK = 0;
-
 	private long submitMultiERR = 0;
-
 	private long deliverSmOK = 0;
-
 	private long deliverSmERR = 0;
-
 	private long querySmOK = 0;
-
 	private long querySmERR = 0;
-
 	private long cancelSmOK = 0;
-
 	private long cancelSmERR = 0;
-
 	private long replaceSmOK = 0;
-
 	private long replaceSmERR = 0;
-
 	private long enquireLinkOK = 0;
-
 	private long enquireLinkERR = 0;
-
 	private long unbindOK = 0;
-
 	private long unbindERR = 0;
-
 	private long genericNakOK = 0;
-
 	private long genericNakERR = 0;
-
 	private long dataSmOK = 0;
-
 	private long dataSmERR = 0;
-	
 	private long outbindOK = 0;
-	
-	private long outbindERR = 0;
-	
+
 	// outbind
-	
-	boolean outbind_sent = false;
-	
+	private long outbindERR = 0;
+
 	private Smsc() {
 	}
 
 	public static Smsc getInstance() {
-		if (smsc == null)
+		if (smsc == null) {
 			smsc = new Smsc();
+		}
 		return smsc;
+	}
+
+	public synchronized static String getMessageID() {
+		long msgID = message_id++;
+		String msgIDstr = SMPPSim.getMid_prefix() + Long.toString(msgID);
+		return msgIDstr;
+	}
+
+	public static int getNextSequence_No() {
+		sequence_no++;
+		return sequence_no;
+	}
+
+	/**
+	 * @return
+	 */
+	public static byte[] getSMSC_SYSTEMID() {
+		return SMSC_SYSTEMID;
+	}
+
+	/**
+	 * @param bs
+	 */
+	public static void setSMSC_SYSTEMID(byte[] bs) {
+		SMSC_SYSTEMID = bs;
+	}
+
+	/**
+	 * @return
+	 */
+	public static long getMessage_id() {
+		return message_id;
+	}
+
+	/**
+	 * @param l
+	 */
+	public static void setMessage_id(long l) {
+		message_id = l;
+	}
+
+	/**
+	 * @return
+	 */
+	public static int getSequence_no() {
+		return sequence_no;
+	}
+
+	/**
+	 * @param i
+	 */
+	public static void setSequence_no(int i) {
+		sequence_no = i;
+	}
+
+	public static synchronized boolean isCallback_server_online() {
+		return callback_server_online;
+	}
+
+	public static synchronized void setCallback_server_online(
+			boolean callback_server_online) {
+		smsc.callback_server_online = callback_server_online;
+	}
+
+	public static synchronized Socket getCallback() {
+		return callback;
+	}
+
+	public static synchronized void setCallback(Socket callback) {
+		smsc.callback = callback;
+	}
+
+	public static synchronized OutputStream getCallback_stream() {
+		return callback_stream;
+	}
+
+	public static synchronized void setCallback_stream(
+			OutputStream callback_stream) {
+		smsc.callback_stream = callback_stream;
 	}
 
 	public void start() throws Exception {
@@ -197,7 +234,7 @@ public class Smsc {
 		startTime = new Date();
 		SimpleDateFormat df = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss");
 		startTimeString = df.format(startTime);
-		
+
 		message_id = SMPPSim.getStart_at();
 
 		if (SMPPSim.isCallback()) {
@@ -291,7 +328,7 @@ public class Smsc {
 		// LifeCycleService (OutboundQueue) must always be running
 		lifecycleService = new Thread(oq);
 		lifecycleService.start();
-		
+
 		if (SMPPSim.getDelayReceiptsBy() > 0) {
 			logger.info("Starting delivery receipts delay service....");
 			drq = DelayedDrQueue.getInstance();
@@ -300,42 +337,34 @@ public class Smsc {
 		}
 	}
 
-	public boolean authenticate(String systemid, String password) {
-		
-		for (int i=0;i<SMPPSim.getSystemids().length;i++) {
-			if (SMPPSim.getSystemids()[i].equals(systemid))
-				if (SMPPSim.getPasswords()[i].equals(password))
-					return true;
-				else
-					return false;
-		}
-		return false;		
-	}
-
-	public boolean isValidSystemId(String systemid) {
-		
-		for (int i=0;i<SMPPSim.getSystemids().length;i++) {
-			if (SMPPSim.getSystemids()[i].equals(systemid))
-				return true;
-		}
-		return false;		
-	}
-
 	public void connectToCallbackServer(Object mutex) {
 		CallbackServerConnector cbs = new CallbackServerConnector(mutex);
 		Thread cbst = new Thread(cbs);
 		cbst.start();
 	}
 
-	public synchronized static String getMessageID() {
-		long msgID = message_id++;
-		String msgIDstr = SMPPSim.getMid_prefix()+Long.toString(msgID);
-		return msgIDstr;
+	public boolean authenticate(String systemid, String password) {
+
+		for (int i = 0; i < SMPPSim.getSystemids().length; i++) {
+			if (SMPPSim.getSystemids()[i].equals(systemid)) {
+				if (SMPPSim.getPasswords()[i].equals(password)) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+		}
+		return false;
 	}
 
-	public static int getNextSequence_No() {
-		sequence_no++;
-		return sequence_no;
+	public boolean isValidSystemId(String systemid) {
+
+		for (int i = 0; i < SMPPSim.getSystemids().length; i++) {
+			if (SMPPSim.getSystemids()[i].equals(systemid)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public QuerySMResp querySm(QuerySM q, QuerySMResp r)
@@ -345,10 +374,11 @@ public class Smsc {
 				.getOriginating_ton(), q.getOriginating_npi(), q
 				.getOriginating_addr());
 		r.setMessage_state(m.getState());
-		if (m.getFinalDate() != null)
+		if (m.getFinalDate() != null) {
 			r.setFinal_date(m.getFinalDate().getDateString());
-		else
+		} else {
 			r.setFinal_date("");
+		}
 		return r;
 	}
 
@@ -394,8 +424,8 @@ public class Smsc {
 	}
 
 	private int cancelMessages(String service_type, int source_addr_ton,
-			int source_addr_npi, String source_addr, int dest_addr_ton,
-			int dest_addr_npi, String destination_addr) {
+	                           int source_addr_npi, String source_addr, int dest_addr_ton,
+	                           int dest_addr_npi, String destination_addr) {
 
 		Object[] messages = oq.getAllMessageStates();
 		MessageState m;
@@ -410,7 +440,7 @@ public class Smsc {
 					&& m.getPdu().getDest_addr_ton() == dest_addr_ton
 					&& m.getPdu().getDest_addr_npi() == dest_addr_npi
 					&& m.getPdu().getDestination_addr()
-							.equals(destination_addr)) {
+					.equals(destination_addr)) {
 				c++;
 				oq.removeMessageState(m);
 			}
@@ -419,8 +449,8 @@ public class Smsc {
 	}
 
 	private int cancelMessages(int source_addr_ton, int source_addr_npi,
-			String source_addr, int dest_addr_ton, int dest_addr_npi,
-			String destination_addr) {
+	                           String source_addr, int dest_addr_ton, int dest_addr_npi,
+	                           String destination_addr) {
 		Object[] messages = oq.getAllMessageStates();
 		MessageState m;
 		int s = messages.length;
@@ -433,7 +463,7 @@ public class Smsc {
 					&& m.getPdu().getDest_addr_ton() == dest_addr_ton
 					&& m.getPdu().getDest_addr_npi() == dest_addr_npi
 					&& m.getPdu().getDestination_addr()
-							.equals(destination_addr)) {
+					.equals(destination_addr)) {
 				c++;
 				oq.removeMessageState(m);
 			}
@@ -447,10 +477,12 @@ public class Smsc {
 		m = oq.queryMessageState(q.getMessage_id(), q.getSource_addr_ton(), q
 				.getSource_addr_npi(), q.getSource_addr());
 		SubmitSM pdu = m.getPdu();
-		if (q.getSchedule_delivery_time() != null)
+		if (q.getSchedule_delivery_time() != null) {
 			pdu.setSchedule_delivery_time(q.getSchedule_delivery_time());
-		if (q.getValidity_period() != null)
+		}
+		if (q.getValidity_period() != null) {
 			pdu.setValidity_period(q.getValidity_period());
+		}
 		pdu.setRegistered_delivery_flag(q.getRegistered_delivery_flag());
 		pdu.setSm_default_msg_id(q.getSm_default_msg_id());
 		pdu.setSm_length(q.getSm_length());
@@ -470,6 +502,15 @@ public class Smsc {
 		}
 	}
 
+	public void stopMoService() {
+		if (ds != null) {
+			if (ds.moServiceRunning) {
+				logger.info("Stopping MO service");
+				ds.moServiceRunning = false;
+			}
+		}
+	}
+
 	public int getReceiverBoundCount() {
 		return SMPPSim.getBoundReceiverCount();
 	}
@@ -483,7 +524,7 @@ public class Smsc {
 			if ((connectionHandlers[receiverIndex].isBound())
 					&& (connectionHandlers[receiverIndex].isReceiver())
 					&& (connectionHandlers[receiverIndex]
-							.addressIsServicedByReceiver(address))) {
+					.addressIsServicedByReceiver(address))) {
 				gotReceiver = true;
 			} else {
 				receiversChecked++;
@@ -498,6 +539,15 @@ public class Smsc {
 			//logger.error("Smsc: No receiver for message address to "+ address);
 			return null;
 		}
+	}
+
+	private synchronized int getNextReceiverIndex() {
+		if (receiverIndex == (SMPPSim.getMaxConnectionHandlers() - 1)) {
+			receiverIndex = 0;
+		} else {
+			receiverIndex++;
+		}
+		return receiverIndex;
 	}
 
 	public void doLoopback(SubmitSM smppmsg) throws InboundQueueFullException {
@@ -518,13 +568,14 @@ public class Smsc {
 
 	public void outbind() {
 		try {
-			Socket s = new Socket(SMPPSim.getEsme_ip_address(),SMPPSim.getEsme_port());
+			Socket s = new Socket(SMPPSim.getEsme_ip_address(), SMPPSim.getEsme_port());
 			OutputStream out = s.getOutputStream();
-			Outbind outbind = new Outbind(SMPPSim.getEsme_systemid(),SMPPSim.getEsme_password());
-			byte [] outbind_bytes = outbind.marshall();
+			Outbind outbind = new Outbind(SMPPSim.getEsme_systemid(), SMPPSim.getEsme_password());
+			byte[] outbind_bytes = outbind.marshall();
 			LoggingUtilities.hexDump(": OUTBIND:", outbind_bytes, outbind_bytes.length);
-			if (smsc.isDecodePdus())
+			if (smsc.isDecodePdus()) {
 				LoggingUtilities.logDecodedPdu(outbind);
+			}
 			out.write(outbind_bytes);
 			out.flush();
 			out.close();
@@ -532,17 +583,31 @@ public class Smsc {
 			outbindOK++;
 			outbind_sent = true;
 		} catch (Exception e) {
-			logger.error("Attempted outbind failed. Check IP address and port are correct for outbind. Exception of type "+e.getClass().getName());
+			logger.error("Attempted outbind failed. Check IP address and port are correct for outbind. Exception of type " + e.getClass().getName());
 			outbindERR++;
 		}
 	}
-	
+
+	/**
+	 * @return
+	 */
+	public static boolean isDecodePdus() {
+		return decodePdus;
+	}
+
+	/**
+	 * @param b
+	 */
+	public static void setDecodePdus(boolean b) {
+		decodePdus = b;
+	}
+
 	public synchronized void prepareDeliveryReceipt(SubmitSM smppmsg, String messageID, byte state, int sub, int dlvrd, int err) {
-		int esm_class=4;
+		int esm_class = 4;
 		if (state == PduConstants.ENROUTE) {
 			esm_class = 32;
 		}
-		DeliveryReceipt receipt = new DeliveryReceipt(smppmsg,esm_class,messageID,state);
+		DeliveryReceipt receipt = new DeliveryReceipt(smppmsg, esm_class, messageID, state);
 		Date rightNow = new Date();
 		SimpleDateFormat df = new SimpleDateFormat("yyMMddHHmm");
 		String dateAsString = df.format(rightNow);
@@ -556,21 +621,21 @@ public class Smsc {
 		receipt.setSubmit_date(dateAsString);
 		receipt.setDone_date(dateAsString);
 		String err_string = "000" + err;
-		err_string = err_string.substring(err_string.length()-3,err_string.length());
+		err_string = err_string.substring(err_string.length() - 3, err_string.length());
 		receipt.setErr(err_string);
-		
+
 		if (SMPPSim.isDlr_tlr_required()) {
 			receipt.addVsop(SMPPSim.getDlr_tlv_tag(), SMPPSim.getDlr_tlv_len(), SMPPSim.getDlr_tlv_value());
 		}
-		
+
 		logger.debug("sm_len=" + smppmsg.getSm_length() + ",message="
 				+ smppmsg.getShort_message());
-		if (smppmsg.getSm_length() > 19)
-			receipt.setText(new String(smppmsg.getShort_message(),0, 20));
-		else
-			if (smppmsg.getSm_length() > 0)
-				receipt.setText(new String(smppmsg.getShort_message(),0,
-						smppmsg.getSm_length()));
+		if (smppmsg.getSm_length() > 19) {
+			receipt.setText(new String(smppmsg.getShort_message(), 0, 20));
+		} else if (smppmsg.getSm_length() > 0) {
+			receipt.setText(new String(smppmsg.getShort_message(), 0,
+					smppmsg.getSm_length()));
+		}
 		receipt.setDeliveryReceiptMessage(state);
 		try {
 			if (SMPPSim.getDelayReceiptsBy() <= 0) {
@@ -581,15 +646,6 @@ public class Smsc {
 		} catch (InboundQueueFullException e) {
 			//logger.error("Failed to create delivery receipt because the Inbound Queue is full");
 		}
-	}
-
-	private synchronized int getNextReceiverIndex() {
-		if (receiverIndex == (SMPPSim.getMaxConnectionHandlers() - 1)) {
-			receiverIndex = 0;
-		} else {
-			receiverIndex++;
-		}
-		return receiverIndex;
 	}
 
 	public byte[] processDeliveryReceipt(DeliveryReceipt smppmsg)
@@ -609,15 +665,6 @@ public class Smsc {
 			ds.moServiceRunning = true;
 			deliveryService = new Thread(ds, "MO");
 			deliveryService.start();
-		}
-	}
-
-	public void stopMoService() {
-		if (ds != null) {
-			if (ds.moServiceRunning) {
-				logger.info("Stopping MO service");
-				ds.moServiceRunning = false;
-			}
 		}
 	}
 
@@ -656,64 +703,8 @@ public class Smsc {
 	/**
 	 * @return
 	 */
-	public static byte[] getSMSC_SYSTEMID() {
-		return SMSC_SYSTEMID;
-	}
-
-	/**
-	 * @param bs
-	 */
-	public static void setSMSC_SYSTEMID(byte[] bs) {
-		SMSC_SYSTEMID = bs;
-	}
-
-	/**
-	 * @return
-	 */
-	public static long getMessage_id() {
-		return message_id;
-	}
-
-	/**
-	 * @return
-	 */
-	public static int getSequence_no() {
-		return sequence_no;
-	}
-
-	/**
-	 * @param l
-	 */
-	public static void setMessage_id(long l) {
-		message_id = l;
-	}
-
-	/**
-	 * @param i
-	 */
-	public static void setSequence_no(int i) {
-		sequence_no = i;
-	}
-
-	/**
-	 * @return
-	 */
 	public ServerSocket getCss() {
 		return css;
-	}
-
-	/**
-	 * @return
-	 */
-	public static boolean isDecodePdus() {
-		return decodePdus;
-	}
-
-	/**
-	 * @param b
-	 */
-	public static void setDecodePdus(boolean b) {
-		decodePdus = b;
 	}
 
 	/**
@@ -738,6 +729,13 @@ public class Smsc {
 	}
 
 	/**
+	 * @param i
+	 */
+	public void setInbound_queue_capacity(int i) {
+		inbound_queue_capacity = i;
+	}
+
+	/**
 	 * @return
 	 */
 	public int getInbound_queue_size() {
@@ -756,24 +754,17 @@ public class Smsc {
 	}
 
 	/**
-	 * @return
-	 */
-	public int getOutbound_queue_size() {
-		return oq.size();
-	}
-
-	/**
-	 * @param i
-	 */
-	public void setInbound_queue_capacity(int i) {
-		inbound_queue_capacity = i;
-	}
-
-	/**
 	 * @param i
 	 */
 	public void setOutbound_queue_capacity(int i) {
 		outbound_queue_capacity = i;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getOutbound_queue_size() {
+		return oq.size();
 	}
 
 	/**
@@ -798,20 +789,6 @@ public class Smsc {
 	}
 
 	/**
-	 * @return
-	 */
-	public int getTrxBoundCount() {
-		return trxBoundCount;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getTxBoundCount() {
-		return txBoundCount;
-	}
-
-	/**
 	 * @param i
 	 */
 	public void setRxBoundCount(int i) {
@@ -820,10 +797,24 @@ public class Smsc {
 	}
 
 	/**
+	 * @return
+	 */
+	public int getTrxBoundCount() {
+		return trxBoundCount;
+	}
+
+	/**
 	 * @param i
 	 */
 	public void setTrxBoundCount(int i) {
 		trxBoundCount = i;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getTxBoundCount() {
+		return txBoundCount;
 	}
 
 	/**
@@ -1136,17 +1127,14 @@ public class Smsc {
 		callback(pdu, type);
 	}
 
-	public synchronized void received(byte[] pdu) {
-		byte[] type = PduUtilities.makeByteArrayFromInt(1, 1);
-		callback(pdu, type);
-	}
-
 	private void callback(byte[] pdu, byte[] type) {
 		logger.debug("callback - start of operation");
-		if (pdu == null)
+		if (pdu == null) {
 			return;
-		if (type == null)
+		}
+		if (type == null) {
 			return;
+		}
 		byte[] result = new byte[pdu.length + 9];
 		byte[] id = new byte[4];
 		try {
@@ -1187,30 +1175,9 @@ public class Smsc {
 		logger.debug("callback - end of operation");
 	}
 
-	public static synchronized boolean isCallback_server_online() {
-		return callback_server_online;
-	}
-
-	public static synchronized void setCallback_server_online(
-			boolean callback_server_online) {
-		smsc.callback_server_online = callback_server_online;
-	}
-
-	public static synchronized Socket getCallback() {
-		return callback;
-	}
-
-	public static synchronized void setCallback(Socket callback) {
-		smsc.callback = callback;
-	}
-
-	public static synchronized OutputStream getCallback_stream() {
-		return callback_stream;
-	}
-
-	public static synchronized void setCallback_stream(
-			OutputStream callback_stream) {
-		smsc.callback_stream = callback_stream;
+	public synchronized void received(byte[] pdu) {
+		byte[] type = PduUtilities.makeByteArrayFromInt(1, 1);
+		callback(pdu, type);
 	}
 
 	public boolean isOutbind_sent() {

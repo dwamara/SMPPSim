@@ -25,13 +25,14 @@
  * $Header: /var/cvsroot/SMPPSim2/distribution/2.6.9/SMPPSim/src/java/com/seleniumsoftware/SMPPSim/pdu/Marshaller.java,v 1.1 2012/07/24 14:48:58 martin Exp $
  ****************************************************************************/
 package com.seleniumsoftware.SMPPSim.pdu;
+
 public interface Marshaller {
 
-/*
- * All response PDUs must implement this interface such that they can produce
- * a properly formatted byte array corresponding to their attribute values and the
- * SMPP format for that PDU
- */
-	public byte [] marshall() throws Exception;
+	/*
+	 * All response PDUs must implement this interface such that they can produce
+	 * a properly formatted byte array corresponding to their attribute values and the
+	 * SMPP format for that PDU
+	 */
+	public byte[] marshall() throws Exception;
 
 }

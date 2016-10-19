@@ -28,43 +28,40 @@
 package com.seleniumsoftware.SMPPSim;
 
 import com.seleniumsoftware.SMPPSim.exceptions.InboundQueueFullException;
-import com.seleniumsoftware.SMPPSim.pdu.*;
-import java.util.*;
+import com.seleniumsoftware.SMPPSim.pdu.Pdu;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+
 public class DelayedInboundQueue implements Runnable {
-	
+
 	private static DelayedInboundQueue diqueue;
 
 //	private static Logger logger = Logger
 //			.getLogger("com.seleniumsoftware.smppsim");
 
-    private static Logger logger = LoggerFactory.getLogger(DelayedInboundQueue.class);
-    
-	private Smsc smsc = Smsc.getInstance();
-	
-	private InboundQueue iqueue = InboundQueue.getInstance();
-
+	private static Logger logger = LoggerFactory.getLogger(DelayedInboundQueue.class);
 	ArrayList<Pdu> delayed_queue_pdus;
-
 	ArrayList<Integer> delayed_queue_attempts;
-
+	private Smsc smsc = Smsc.getInstance();
+	private InboundQueue iqueue = InboundQueue.getInstance();
 	private int period;
 
 	private int max_attempts;
-
-	public static DelayedInboundQueue getInstance() {
-		if (diqueue == null)
-			diqueue = new DelayedInboundQueue();
-		return diqueue;
-	}
 
 	private DelayedInboundQueue() {
 		period = SMPPSim.getDelayed_iqueue_period();
 		max_attempts = SMPPSim.getDelayed_inbound_queue_max_attempts();
 		delayed_queue_attempts = new ArrayList<Integer>();
 		delayed_queue_pdus = new ArrayList<Pdu>();
+	}
+
+	public static DelayedInboundQueue getInstance() {
+		if (diqueue == null) {
+			diqueue = new DelayedInboundQueue();
+		}
+		return diqueue;
 	}
 
 	public void retryLater(Pdu pdu) {
@@ -80,8 +77,8 @@ public class DelayedInboundQueue implements Runnable {
 					if (i > -1) {
 						int a = delayed_queue_attempts.get(i).intValue();
 						a++;
-						delayed_queue_attempts.set(i,a);
-						logger.debug("DelayedInboundQueue: incremented retry count to "+a+" for "+"<"
+						delayed_queue_attempts.set(i, a);
+						logger.debug("DelayedInboundQueue: incremented retry count to " + a + " for " + "<"
 								+ pdu.toString() + ">");
 					}
 				}
@@ -90,7 +87,7 @@ public class DelayedInboundQueue implements Runnable {
 			}
 		}
 	}
-	
+
 	public void deliveredOK(Pdu pdu) {
 		int seqno = pdu.getSeq_no();
 		synchronized (delayed_queue_pdus) {
@@ -103,20 +100,20 @@ public class DelayedInboundQueue implements Runnable {
 					if (mo.getSeq_no() == seqno) {
 						delayed_queue_pdus.remove(i);
 						delayed_queue_attempts.remove(i);
-						logger.debug("Removed delayed message because it was delivered OK or with permanent error. seqno="+seqno);
+						logger.debug("Removed delayed message because it was delivered OK or with permanent error. seqno=" + seqno);
 					}
 				}
 				logger.info("DelayedInboundQueue: now contains "
 						+ delayed_queue_pdus.size() + " object(s)");
 			}
 		}
-		
+
 	}
 
 	public void run() {
 		// this code periodically processes the contents of the delayed inbound queue, moving
 		// messages that are old enough to the active inbound queue for attempted delivery.
-		
+
 		logger.info("Starting DelayedInboundQueue service....");
 
 
@@ -139,9 +136,9 @@ public class DelayedInboundQueue implements Runnable {
 										.intValue() + 1;
 								delayed_queue_attempts.set(i, new Integer(
 										attempts));
-								logger.debug("Requesting retry delivery of message "+mo.getSeq_no());
+								logger.debug("Requesting retry delivery of message " + mo.getSeq_no());
 							} else {
-								logger.info("MO message not delivered after max ("+max_attempts+") allowed attempts so deleting : "+delayed_queue_pdus.get(i).getSeq_no());
+								logger.info("MO message not delivered after max (" + max_attempts + ") allowed attempts so deleting : " + delayed_queue_pdus.get(i).getSeq_no());
 								delayed_queue_pdus.remove(i);
 							}
 						} catch (InboundQueueFullException e) {

@@ -25,12 +25,13 @@
  * $Header: /var/cvsroot/SMPPSim2/distribution/2.6.9/SMPPSim/src/java/com/seleniumsoftware/SMPPSim/pdu/Demarshaller.java,v 1.1 2012/07/24 14:48:59 martin Exp $
  ****************************************************************************/
 package com.seleniumsoftware.SMPPSim.pdu;
+
 public interface Demarshaller {
 
 /* All request PDUs must implement this interface such that they can populate their
  * own attributes from an input byte array
  */
 
-	public void demarshall(byte [] request) throws Exception;
+	public void demarshall(byte[] request) throws Exception;
 
 }

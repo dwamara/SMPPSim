@@ -26,7 +26,6 @@
  ****************************************************************************/
 
 package com.seleniumsoftware.SMPPSim.pdu;
-import com.seleniumsoftware.SMPPSim.pdu.util.PduUtilities;
 
 public class EnquireLinkResp extends Response implements Marshaller {
 
@@ -40,15 +39,6 @@ public class EnquireLinkResp extends Response implements Marshaller {
 		setCmd_len(0);
 	}
 
-	public byte[] marshall() throws Exception {
-		out.reset();
-		super.prepareHeaderForMarshalling();
-		byte[] response = out.toByteArray();
-		int l = response.length;
-		response = PduUtilities.setPduLength(response, l);
-		return response;
-	}
-	
 	/**
 	 * *returns String representation of PDU
 	 */

@@ -27,20 +27,17 @@
 
 package com.seleniumsoftware.SMPPSim.pdu;
 
-import java.util.ArrayList;
-
-import com.seleniumsoftware.SMPPSim.SMPPSim;
 import com.seleniumsoftware.SMPPSim.Smsc;
 import com.seleniumsoftware.SMPPSim.pdu.util.PduUtilities;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+
 public class DeliverSM extends Response implements Marshaller, Cloneable {
 
+	//	private static Logger logger = Logger.getLogger("com.seleniumsoftware.smppsim");
+	private static org.slf4j.Logger logger = LoggerFactory.getLogger(DeliverSM.class);
 	private Smsc smsc = Smsc.getInstance();
-
-//	private static Logger logger = Logger.getLogger("com.seleniumsoftware.smppsim");
-    private static org.slf4j.Logger logger = LoggerFactory.getLogger(DeliverSM.class);
-
 	private long created;
 
 	private String service_type = "";
@@ -161,27 +158,15 @@ public class DeliverSM extends Response implements Marshaller, Cloneable {
 		dest_addr_ton = msg.getSource_addr_ton();
 		dest_addr_npi = msg.getSource_addr_npi();
 		destination_addr = msg.getSource_addr();
-		if (destination_addr == null)
+		if (destination_addr == null) {
 			destination_addr = "";
+		}
 		source_addr_ton = msg.getDest_addr_ton();
 		source_addr_npi = msg.getDest_addr_npi();
 		source_addr = msg.getDestination_addr();
-		if (source_addr == null)
+		if (source_addr == null) {
 			source_addr = "";
-	}
-
-	public void esmeToEsmeDerivation(SubmitSM msg) {
-		setCommonAttributes(msg);
-		dest_addr_ton = msg.getDest_addr_ton();
-		dest_addr_npi = msg.getDest_addr_npi();
-		destination_addr = msg.getDestination_addr();
-		if (destination_addr == null)
-			destination_addr = "";
-		source_addr_ton = msg.getSource_addr_ton();
-		source_addr_npi = msg.getSource_addr_npi();
-		source_addr = msg.getSource_addr();
-		if (source_addr == null)
-			source_addr = "";
+		}
 	}
 
 	private void setCommonAttributes(SubmitSM msg) {
@@ -194,27 +179,47 @@ public class DeliverSM extends Response implements Marshaller, Cloneable {
 		setCmd_len(0);
 		// message body
 		service_type = msg.getService_type();
-		if (service_type == null)
+		if (service_type == null) {
 			service_type = "";
+		}
 		esm_class = msg.getEsm_class();
 		protocol_ID = msg.getProtocol_ID();
 		priority_flag = msg.getPriority_flag();
 		schedule_delivery_time = msg.getSchedule_delivery_time();
-		if (schedule_delivery_time == null)
+		if (schedule_delivery_time == null) {
 			schedule_delivery_time = "";
+		}
 		validity_period = msg.getValidity_period();
-		if (validity_period == null)
+		if (validity_period == null) {
 			validity_period = "";
+		}
 		registered_delivery_flag = msg.getRegistered_delivery_flag();
 		replace_if_present_flag = msg.getReplace_if_present_flag();
 		data_coding = msg.getData_coding();
 		sm_default_msg_id = msg.getSm_default_msg_id();
 		short_message = msg.getShort_message();
-		if (short_message == null)
+		if (short_message == null) {
 			sm_length = 0;
-		else
+		} else {
 			sm_length = short_message.length;
+		}
 		created = System.currentTimeMillis();
+	}
+
+	public void esmeToEsmeDerivation(SubmitSM msg) {
+		setCommonAttributes(msg);
+		dest_addr_ton = msg.getDest_addr_ton();
+		dest_addr_npi = msg.getDest_addr_npi();
+		destination_addr = msg.getDestination_addr();
+		if (destination_addr == null) {
+			destination_addr = "";
+		}
+		source_addr_ton = msg.getSource_addr_ton();
+		source_addr_npi = msg.getSource_addr_npi();
+		source_addr = msg.getSource_addr();
+		if (source_addr == null) {
+			source_addr = "";
+		}
 	}
 
 	public byte[] marshall() throws Exception {
@@ -336,8 +341,9 @@ public class DeliverSM extends Response implements Marshaller, Cloneable {
 
 		if (string_callback_num != null && !string_callback_num.equals("")) {
 			// min 4 bytes long so pad with spaces if necessary
-			if (string_callback_num.length() < 4)
+			if (string_callback_num.length() < 4) {
 				string_callback_num = (string_callback_num + "    ").substring(0, 4);
+			}
 			callback_num = string_callback_num;
 			out.write(PduUtilities.makeCOctetStringTLV(PduConstants.CALLBACK_NUM, callback_num.getBytes()));
 		}
@@ -389,129 +395,17 @@ public class DeliverSM extends Response implements Marshaller, Cloneable {
 	}
 
 	/**
-	 * @return
-	 */
-	public int getDest_addr_npi() {
-		return dest_addr_npi;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getDest_addr_ton() {
-		return dest_addr_ton;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getDestination_addr() {
-		return destination_addr;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getEsm_class() {
-		return esm_class;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getPriority_flag() {
-		return priority_flag;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getProtocol_ID() {
-		return protocol_ID;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getRegistered_delivery_flag() {
-		return registered_delivery_flag;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getReplace_if_present_flag() {
-		return replace_if_present_flag;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getSchedule_delivery_time() {
-		return schedule_delivery_time;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getService_type() {
-		return service_type;
-	}
-
-	/**
-	 * @return
-	 */
-	public byte[] getShort_message() {
-		return short_message;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getSm_default_msg_id() {
-		return sm_default_msg_id;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getSm_length() {
-		return sm_length;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getSource_addr() {
-		return source_addr;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getSource_addr_npi() {
-		return source_addr_npi;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getSource_addr_ton() {
-		return source_addr_ton;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getValidity_period() {
-		return validity_period;
-	}
-
-	/**
 	 * @param i
 	 */
 	public void setData_coding(int i) {
 		data_coding = i;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getDest_addr_npi() {
+		return dest_addr_npi;
 	}
 
 	/**
@@ -522,10 +416,24 @@ public class DeliverSM extends Response implements Marshaller, Cloneable {
 	}
 
 	/**
+	 * @return
+	 */
+	public int getDest_addr_ton() {
+		return dest_addr_ton;
+	}
+
+	/**
 	 * @param i
 	 */
 	public void setDest_addr_ton(int i) {
 		dest_addr_ton = i;
+	}
+
+	/**
+	 * @return
+	 */
+	public String getDestination_addr() {
+		return destination_addr;
 	}
 
 	/**
@@ -536,10 +444,24 @@ public class DeliverSM extends Response implements Marshaller, Cloneable {
 	}
 
 	/**
+	 * @return
+	 */
+	public int getEsm_class() {
+		return esm_class;
+	}
+
+	/**
 	 * @param i
 	 */
 	public void setEsm_class(int i) {
 		esm_class = i;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getPriority_flag() {
+		return priority_flag;
 	}
 
 	/**
@@ -550,10 +472,24 @@ public class DeliverSM extends Response implements Marshaller, Cloneable {
 	}
 
 	/**
+	 * @return
+	 */
+	public int getProtocol_ID() {
+		return protocol_ID;
+	}
+
+	/**
 	 * @param i
 	 */
 	public void setProtocol_ID(int i) {
 		protocol_ID = i;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getRegistered_delivery_flag() {
+		return registered_delivery_flag;
 	}
 
 	/**
@@ -564,10 +500,24 @@ public class DeliverSM extends Response implements Marshaller, Cloneable {
 	}
 
 	/**
+	 * @return
+	 */
+	public int getReplace_if_present_flag() {
+		return replace_if_present_flag;
+	}
+
+	/**
 	 * @param i
 	 */
 	public void setReplace_if_present_flag(int i) {
 		replace_if_present_flag = i;
+	}
+
+	/**
+	 * @return
+	 */
+	public String getSchedule_delivery_time() {
+		return schedule_delivery_time;
 	}
 
 	/**
@@ -578,10 +528,24 @@ public class DeliverSM extends Response implements Marshaller, Cloneable {
 	}
 
 	/**
+	 * @return
+	 */
+	public String getService_type() {
+		return service_type;
+	}
+
+	/**
 	 * @param string
 	 */
 	public void setService_type(String string) {
 		service_type = string;
+	}
+
+	/**
+	 * @return
+	 */
+	public byte[] getShort_message() {
+		return short_message;
 	}
 
 	/**
@@ -592,10 +556,24 @@ public class DeliverSM extends Response implements Marshaller, Cloneable {
 	}
 
 	/**
+	 * @return
+	 */
+	public int getSm_default_msg_id() {
+		return sm_default_msg_id;
+	}
+
+	/**
 	 * @param i
 	 */
 	public void setSm_default_msg_id(int i) {
 		sm_default_msg_id = i;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getSm_length() {
+		return sm_length;
 	}
 
 	/**
@@ -606,10 +584,24 @@ public class DeliverSM extends Response implements Marshaller, Cloneable {
 	}
 
 	/**
+	 * @return
+	 */
+	public String getSource_addr() {
+		return source_addr;
+	}
+
+	/**
 	 * @param string
 	 */
 	public void setSource_addr(String string) {
 		source_addr = string;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getSource_addr_npi() {
+		return source_addr_npi;
 	}
 
 	/**
@@ -620,10 +612,24 @@ public class DeliverSM extends Response implements Marshaller, Cloneable {
 	}
 
 	/**
+	 * @return
+	 */
+	public int getSource_addr_ton() {
+		return source_addr_ton;
+	}
+
+	/**
 	 * @param i
 	 */
 	public void setSource_addr_ton(int i) {
 		source_addr_ton = i;
+	}
+
+	/**
+	 * @return
+	 */
+	public String getValidity_period() {
+		return validity_period;
 	}
 
 	/**

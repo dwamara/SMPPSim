@@ -28,27 +28,20 @@
 
 package com.seleniumsoftware.SMPPSim;
 
-import com.seleniumsoftware.SMPPSim.exceptions.InvalidHexStringlException;
-import com.seleniumsoftware.SMPPSim.pdu.*;
+import com.seleniumsoftware.SMPPSim.pdu.DeliverSM;
 import org.slf4j.Logger;
-
 import org.slf4j.LoggerFactory;
 
 public class MoService implements Runnable {
 
 //	private static Logger logger = Logger.getLogger("com.seleniumsoftware.smppsim");
 
-    private static Logger logger = LoggerFactory.getLogger(MoService.class);
-    
-	private Smsc smsc = Smsc.getInstance();
-
-	private int messagesPerMin;
-
+	private static Logger logger = LoggerFactory.getLogger(MoService.class);
 	boolean moServiceRunning = false;
-
 	String deliveryFile;
-
 	MoMessagePool messages;
+	private Smsc smsc = Smsc.getInstance();
+	private int messagesPerMin;
 
 	public MoService(String filename, int deliverMessagesPerMin) {
 		deliveryFile = filename;

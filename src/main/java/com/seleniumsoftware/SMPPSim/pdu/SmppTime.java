@@ -26,10 +26,11 @@
  ****************************************************************************/
 
 package com.seleniumsoftware.SMPPSim.pdu;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.logging.*;
+import java.util.Date;
+import java.util.logging.Logger;
 
 public class SmppTime {
 
@@ -56,13 +57,13 @@ public class SmppTime {
 	// Note that SMPPSim currently only supports times with p="+" and nn="00"; Any other values are simply
 	// ignored.
 
-	private String milli;	// t plus "00"
-	
-	private String dateString;	// Whole field with nn and p sanitised if necessary
-	
+	private String milli;    // t plus "00"
+
+	private String dateString;    // Whole field with nn and p sanitised if necessary
+
 	// Equivalent Java date/time
 	private Date datetime;
-	
+
 	public SmppTime(String smppTime) throws ParseException {
 		String st = smppTime;
 		// 050219133817000+
@@ -84,7 +85,7 @@ public class SmppTime {
 			p = "+";
 		}
 		milli = t + "00";
-		dateString = YY+MM+DD+hh+mm+ss+t+nn+p;
+		dateString = YY + MM + DD + hh + mm + ss + t + nn + p;
 		SimpleDateFormat formatter = new SimpleDateFormat("yyMMddHHmmssSSS");
 		datetime = formatter.parse(dateString);
 	}
@@ -108,73 +109,17 @@ public class SmppTime {
 	}
 
 	/**
-	 * @return
-	 */
-	public String getDD() {
-		return DD;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getHh() {
-		return hh;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getMm() {
-		return mm;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getMM() {
-		return MM;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getNn() {
-		return nn;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getP() {
-		return p;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getSs() {
-		return ss;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getT() {
-		return t;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getYY() {
-		return YY;
-	}
-
-	/**
 	 * @param date
 	 */
 	public void setDatetime(Date date) {
 		datetime = date;
+	}
+
+	/**
+	 * @return
+	 */
+	public String getDD() {
+		return DD;
 	}
 
 	/**
@@ -185,10 +130,24 @@ public class SmppTime {
 	}
 
 	/**
+	 * @return
+	 */
+	public String getHh() {
+		return hh;
+	}
+
+	/**
 	 * @param string
 	 */
 	public void setHh(String string) {
 		hh = string;
+	}
+
+	/**
+	 * @return
+	 */
+	public String getMm() {
+		return mm;
 	}
 
 	/**
@@ -199,10 +158,24 @@ public class SmppTime {
 	}
 
 	/**
+	 * @return
+	 */
+	public String getMM() {
+		return MM;
+	}
+
+	/**
 	 * @param string
 	 */
 	public void setMM(String string) {
 		MM = string;
+	}
+
+	/**
+	 * @return
+	 */
+	public String getNn() {
+		return nn;
 	}
 
 	/**
@@ -213,10 +186,24 @@ public class SmppTime {
 	}
 
 	/**
+	 * @return
+	 */
+	public String getP() {
+		return p;
+	}
+
+	/**
 	 * @param string
 	 */
 	public void setP(String string) {
 		p = string;
+	}
+
+	/**
+	 * @return
+	 */
+	public String getSs() {
+		return ss;
 	}
 
 	/**
@@ -227,10 +214,24 @@ public class SmppTime {
 	}
 
 	/**
+	 * @return
+	 */
+	public String getT() {
+		return t;
+	}
+
+	/**
 	 * @param string
 	 */
 	public void setT(String string) {
 		t = string;
+	}
+
+	/**
+	 * @return
+	 */
+	public String getYY() {
+		return YY;
 	}
 
 	/**
@@ -253,7 +254,7 @@ public class SmppTime {
 	public void setDateString(String string) {
 		dateString = string;
 	}
-	
+
 	public String toString() {
 		return dateString;
 	}

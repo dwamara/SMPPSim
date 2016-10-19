@@ -27,16 +27,16 @@
 
 package com.seleniumsoftware.SMPPSim.pdu;
 
-import java.util.*;
-
 import com.seleniumsoftware.SMPPSim.SMPPSim;
 import com.seleniumsoftware.SMPPSim.pdu.util.PduUtilities;
 import org.slf4j.LoggerFactory;
 
+import java.util.Date;
+
 public class DeliveryReceipt extends DeliverSM {
-    
-        
-    private static org.slf4j.Logger logger = LoggerFactory.getLogger(DeliverSM.class);
+
+
+	private static org.slf4j.Logger logger = LoggerFactory.getLogger(DeliverSM.class);
 
 //	private static Logger logger = Logger.getLogger("com.seleniumsoftware.smppsim");
 
@@ -72,29 +72,58 @@ public class DeliveryReceipt extends DeliverSM {
 			addVsop(umr_tlv.getTag(), umr_tlv.getLen(), umr_tlv.getValue());
 		}
 
-		addVsop(PduConstants.RECEIPTED_MESSAGE_ID, (short) (messageID.length()+1), PduUtilities.stringToNullTerminatedByteArray(messageID));
-		byte [] state_byte = new byte[1];
+		addVsop(PduConstants.RECEIPTED_MESSAGE_ID, (short) (messageID.length() + 1), PduUtilities.stringToNullTerminatedByteArray(messageID));
+		byte[] state_byte = new byte[1];
 		state_byte[0] = state;
 		addVsop(PduConstants.MESSAGE_STATE, (short) 1, state_byte);
-		
-		int network_error_code=0x030000; // 0x03 means GSM
+
+		int network_error_code = 0x030000; // 0x03 means GSM
 
 		// network_error_code values are not defined in the SMPP spec so two simple values only are hard coded here to support the most basic of testing needs
-		
+
 		switch (state) {
 			case PduConstants.UNDELIVERABLE:
 				// error code of 01 in the last 2 octets
 				network_error_code = network_error_code | 0x000001;
-				byte [] nec_bytes1 = PduUtilities.makeByteArrayFromInt(network_error_code, 3);
+				byte[] nec_bytes1 = PduUtilities.makeByteArrayFromInt(network_error_code, 3);
 				addVsop(PduConstants.NETWORK_ERROR_CODE_TAG, (short) 3, nec_bytes1);
 				break;
-			case PduConstants.REJECTED: 
+			case PduConstants.REJECTED:
 				// error code of 02 in the last 2 octets
 				network_error_code = network_error_code | 0x000002;
-				byte [] nec_bytes2 = PduUtilities.makeByteArrayFromInt(network_error_code, 3);
+				byte[] nec_bytes2 = PduUtilities.makeByteArrayFromInt(network_error_code, 3);
 				addVsop(PduConstants.NETWORK_ERROR_CODE_TAG, (short) 3, nec_bytes2);
 				break;
-		}		
+		}
+	}
+
+	private void deriveUssd_service_op(SubmitSM msg) {
+		if (SMPPSim.isDeliver_sm_includes_ussd_service_op()) {
+			Tlv ussd_service_op = msg.getUssd_service_op();
+			if (ussd_service_op != null && ussd_service_op.getValue().length == 1) {
+				byte uso = 0;
+				try {
+					uso = ussd_service_op.getValue()[0];
+					switch (uso) {
+						case 0:
+							setUssd_service_op((byte) 16); // PSSD response
+							break;
+						case 1:
+							setUssd_service_op((byte) 17); // PSSD response
+							break;
+						case 2:
+							setUssd_service_op((byte) 18); // PSSD response
+							break;
+						case 3:
+							setUssd_service_op((byte) 19); // PSSD response
+							break;
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
+			}
+		}
 	}
 
 	public void setDeliveryReceiptMessage(byte state) {
@@ -114,27 +143,6 @@ public class DeliveryReceipt extends DeliverSM {
 		setSm_length(getShort_message().length);
 	}
 
-	public void setStateText(byte state) {
-		if (state == PduConstants.DELIVERED)
-			stat = "DELIVRD";
-		else if (state == PduConstants.EXPIRED)
-			stat = "EXPIRED";
-		else if (state == PduConstants.DELETED)
-			stat = "DELETED";
-		else if (state == PduConstants.UNDELIVERABLE)
-			stat = "UNDELIV";
-		else if (state == PduConstants.ACCEPTED)
-			stat = "ACCEPTD";
-		else if (state == PduConstants.UNKNOWN)
-			stat = "UNKNOWN";
-		else if (state == PduConstants.REJECTED)
-			stat = "REJECTD";
-		else if (state == PduConstants.ENROUTE)
-			stat = "ENROUTE";
-		else
-			stat = "BADSTAT";
-	}
-
 	// 0 = PSSD indication
 	// 1 = PSSR indication
 	// 2 = USSR request
@@ -144,32 +152,25 @@ public class DeliveryReceipt extends DeliverSM {
 	// 18 = USSR confirm
 	// 19 = USSN confirm
 
-	private void deriveUssd_service_op(SubmitSM msg) {
-		if (SMPPSim.isDeliver_sm_includes_ussd_service_op()) {
-			Tlv ussd_service_op = msg.getUssd_service_op();
-			if (ussd_service_op != null && ussd_service_op.getValue().length == 1) {
-				byte uso = 0;
-				try {
-					uso = ussd_service_op.getValue()[0];
-					switch (uso) {
-					case 0:
-						setUssd_service_op((byte) 16); // PSSD response
-						break;
-					case 1:
-						setUssd_service_op((byte) 17); // PSSD response
-						break;
-					case 2:
-						setUssd_service_op((byte) 18); // PSSD response
-						break;
-					case 3:
-						setUssd_service_op((byte) 19); // PSSD response
-						break;
-					}
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-
-			}
+	public void setStateText(byte state) {
+		if (state == PduConstants.DELIVERED) {
+			stat = "DELIVRD";
+		} else if (state == PduConstants.EXPIRED) {
+			stat = "EXPIRED";
+		} else if (state == PduConstants.DELETED) {
+			stat = "DELETED";
+		} else if (state == PduConstants.UNDELIVERABLE) {
+			stat = "UNDELIV";
+		} else if (state == PduConstants.ACCEPTED) {
+			stat = "ACCEPTD";
+		} else if (state == PduConstants.UNKNOWN) {
+			stat = "UNKNOWN";
+		} else if (state == PduConstants.REJECTED) {
+			stat = "REJECTD";
+		} else if (state == PduConstants.ENROUTE) {
+			stat = "ENROUTE";
+		} else {
+			stat = "BADSTAT";
 		}
 	}
 
@@ -181,59 +182,17 @@ public class DeliveryReceipt extends DeliverSM {
 	}
 
 	/**
-	 * @return
-	 */
-	public String getDone_date() {
-		return done_date;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getErr() {
-		return err;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getMessage_id() {
-		return message_id;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getStat() {
-		return stat;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getSub() {
-		return sub;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getSubmit_date() {
-		return submit_date;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getText() {
-		return text;
-	}
-
-	/**
 	 * @param string
 	 */
 	public void setDlvrd(String string) {
 		dlvrd = string;
+	}
+
+	/**
+	 * @return
+	 */
+	public String getDone_date() {
+		return done_date;
 	}
 
 	/**
@@ -245,10 +204,24 @@ public class DeliveryReceipt extends DeliverSM {
 	}
 
 	/**
+	 * @return
+	 */
+	public String getErr() {
+		return err;
+	}
+
+	/**
 	 * @param string
 	 */
 	public void setErr(String string) {
 		err = string;
+	}
+
+	/**
+	 * @return
+	 */
+	public String getMessage_id() {
+		return message_id;
 	}
 
 	/**
@@ -259,10 +232,24 @@ public class DeliveryReceipt extends DeliverSM {
 	}
 
 	/**
+	 * @return
+	 */
+	public String getStat() {
+		return stat;
+	}
+
+	/**
 	 * @param string
 	 */
 	public void setStat(String string) {
 		stat = string;
+	}
+
+	/**
+	 * @return
+	 */
+	public String getSub() {
+		return sub;
 	}
 
 	/**
@@ -273,10 +260,24 @@ public class DeliveryReceipt extends DeliverSM {
 	}
 
 	/**
+	 * @return
+	 */
+	public String getSubmit_date() {
+		return submit_date;
+	}
+
+	/**
 	 * @param string
 	 */
 	public void setSubmit_date(String string) {
 		submit_date = string;
+	}
+
+	/**
+	 * @return
+	 */
+	public String getText() {
+		return text;
 	}
 
 	/**

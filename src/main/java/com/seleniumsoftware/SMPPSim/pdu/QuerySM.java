@@ -27,12 +27,12 @@
 
 package com.seleniumsoftware.SMPPSim.pdu;
 
-import com.seleniumsoftware.SMPPSim.pdu.util.*;
+import com.seleniumsoftware.SMPPSim.pdu.util.PduUtilities;
 import org.slf4j.LoggerFactory;
 
 public class QuerySM extends Request implements Demarshaller {
 
-       private static org.slf4j.Logger logger = LoggerFactory.getLogger(QuerySM.class);
+	private static org.slf4j.Logger logger = LoggerFactory.getLogger(QuerySM.class);
 	// PDU attributes
 
 	private String original_message_id;
@@ -86,31 +86,20 @@ public class QuerySM extends Request implements Demarshaller {
 	}
 
 	/**
+	 * *returns String representation of PDU
+	 */
+	public String toString() {
+		return super.toString() + "," + "original_message_id="
+				+ original_message_id + "," + "originating_ton="
+				+ originating_ton + "," + "originating_npi=" + originating_npi
+				+ "," + "originating_addr=" + originating_addr;
+	}
+
+	/**
 	 * @return
 	 */
 	public String getOriginal_message_id() {
 		return original_message_id;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getOriginating_addr() {
-		return originating_addr;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getOriginating_npi() {
-		return originating_npi;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getOriginating_ton() {
-		return originating_ton;
 	}
 
 	/**
@@ -121,10 +110,24 @@ public class QuerySM extends Request implements Demarshaller {
 	}
 
 	/**
+	 * @return
+	 */
+	public String getOriginating_addr() {
+		return originating_addr;
+	}
+
+	/**
 	 * @param string
 	 */
 	public void setOriginating_addr(String string) {
 		originating_addr = string;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getOriginating_npi() {
+		return originating_npi;
 	}
 
 	/**
@@ -135,20 +138,17 @@ public class QuerySM extends Request implements Demarshaller {
 	}
 
 	/**
+	 * @return
+	 */
+	public int getOriginating_ton() {
+		return originating_ton;
+	}
+
+	/**
 	 * @param i
 	 */
 	public void setOriginating_ton(int i) {
 		originating_ton = i;
-	}
-
-	/**
-	 * *returns String representation of PDU
-	 */
-	public String toString() {
-		return super.toString() + "," + "original_message_id="
-				+ original_message_id + "," + "originating_ton="
-				+ originating_ton + "," + "originating_npi=" + originating_npi
-				+ "," + "originating_addr=" + originating_addr;
 	}
 
 }

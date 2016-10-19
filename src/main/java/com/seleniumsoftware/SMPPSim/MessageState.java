@@ -27,33 +27,30 @@
 
 package com.seleniumsoftware.SMPPSim;
 
-import com.seleniumsoftware.SMPPSim.pdu.*;
-
-import java.text.ParseException;
-import java.util.*;
+import com.seleniumsoftware.SMPPSim.pdu.PduConstants;
+import com.seleniumsoftware.SMPPSim.pdu.SmppTime;
+import com.seleniumsoftware.SMPPSim.pdu.SubmitSM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.text.ParseException;
+import java.util.Date;
 
 public class MessageState {
 //	private static Logger logger = Logger
 //			.getLogger("com.seleniumsoftware.smppsim");
 
-    private static Logger logger = LoggerFactory.getLogger(MessageState.class);
-	// key
-	private String message_id;
-
-	private int source_addr_ton;
-
-	private int source_addr_npi;
-
-	private String source_addr;
-
+	private static Logger logger = LoggerFactory.getLogger(MessageState.class);
 	// Original pdu (only SUBMIT_SM currently)
 	SubmitSM pdu;
-
+	// key
+	private String message_id;
+	private int source_addr_ton;
+	private int source_addr_npi;
+	private String source_addr;
 	// other attributes
 	private byte state;
-	
+
 	private int err;
 
 	private boolean responseSent = false;
@@ -80,13 +77,14 @@ public class MessageState {
 		// All messages start with state ENROUTE
 		state = PduConstants.ENROUTE;
 		byte rd = (byte) pdu.getRegistered_delivery_flag();
-		if ((rd & (byte) 0x10) == 0x10)
+		if ((rd & (byte) 0x10) == 0x10) {
 			intermediate_notification_requested = true;
+		}
 		submit_time = System.currentTimeMillis();
 		try {
-			if (!pdu.getValidity_period().equals(""))
+			if (!pdu.getValidity_period().equals("")) {
 				validity_period = new SmppTime(pdu.getValidity_period());
-			else {
+			} else {
 				//logger.info("Validity period is not set: defaulting to 5 minutes from now");
 				long now = System.currentTimeMillis() + 300000;
 				String st = SmppTime.dateToSMPPString(new Date(now));
@@ -105,21 +103,6 @@ public class MessageState {
 		}
 	}
 
-	public boolean equals(Object other) {
-//		logger.info("MessageState.equals:"+other.getClass().getName());
-		if (other instanceof MessageState) {
-			MessageState ms = (MessageState) other;
-//			logger.info("MessageState equality1:" + this.keyToString());
-//			logger.info("MessageState equality2:" + ms.keyToString());
-			if (ms.getMessage_id().equals(message_id)
-					&& ms.getSource_addr_ton() == source_addr_ton
-					&& ms.getSource_addr_npi() == source_addr_npi
-					&& ms.getSource_addr().equals(source_addr))
-				return true;
-		}
-		return false;
-	}
-
 	public int hashCode() {
 		// An int derived from message_id plus the last 3 digits of source_addr
 		// should surely always be unique. Shouldn't it?
@@ -134,25 +117,27 @@ public class MessageState {
 		return h;
 	}
 
+	public boolean equals(Object other) {
+//		logger.info("MessageState.equals:"+other.getClass().getName());
+		if (other instanceof MessageState) {
+			MessageState ms = (MessageState) other;
+//			logger.info("MessageState equality1:" + this.keyToString());
+//			logger.info("MessageState equality2:" + ms.keyToString());
+			if (ms.getMessage_id().equals(message_id)
+					&& ms.getSource_addr_ton() == source_addr_ton
+					&& ms.getSource_addr_npi() == source_addr_npi
+					&& ms.getSource_addr().equals(source_addr)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	/**
 	 * @return
 	 */
 	public String getMessage_id() {
 		return message_id;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getSource_addr() {
-		return source_addr;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getSource_addr_npi() {
-		return source_addr_npi;
 	}
 
 	/**
@@ -165,15 +150,15 @@ public class MessageState {
 	/**
 	 * @return
 	 */
-	public byte getState() {
-		return state;
+	public int getSource_addr_npi() {
+		return source_addr_npi;
 	}
 
 	/**
-	 * @param string
+	 * @return
 	 */
-	public void setMessage_id(String string) {
-		message_id = string;
+	public String getSource_addr() {
+		return source_addr;
 	}
 
 	/**
@@ -198,6 +183,24 @@ public class MessageState {
 	}
 
 	/**
+	 * @param string
+	 */
+	public void setMessage_id(String string) {
+		message_id = string;
+	}
+
+	public String toString() {
+		return "OP:" + source_addr + "  CP:" + pdu.getDestination_addr();
+	}
+
+	/**
+	 * @return
+	 */
+	public byte getState() {
+		return state;
+	}
+
+	/**
 	 * @param b
 	 */
 	public void setState(byte b) {
@@ -212,24 +215,17 @@ public class MessageState {
 	}
 
 	/**
-	 * @return
-	 */
-	public long getSubmit_time() {
-		return submit_time;
-	}
-
-	/**
-	 * @return
-	 */
-	public SmppTime getValidity_period() {
-		return validity_period;
-	}
-
-	/**
 	 * @param request
 	 */
 	public void setPdu(SubmitSM request) {
 		pdu = request;
+	}
+
+	/**
+	 * @return
+	 */
+	public long getSubmit_time() {
+		return submit_time;
 	}
 
 	/**
@@ -240,10 +236,10 @@ public class MessageState {
 	}
 
 	/**
-	 * @param time
+	 * @return
 	 */
-	public void setValidity_period(SmppTime time) {
-		validity_period = time;
+	public SmppTime getValidity_period() {
+		return validity_period;
 	}
 
 //	public String toString() {
@@ -254,9 +250,12 @@ public class MessageState {
 //				+ "final_time=" + final_time + "," + "finalDate=" + finalDate
 //				+ "," + "validity_period=" + validity_period;
 //	}
-        
-        public String toString() {
-		return "OP:" + source_addr + "  CP:" + pdu.getDestination_addr();
+
+	/**
+	 * @param time
+	 */
+	public void setValidity_period(SmppTime time) {
+		validity_period = time;
 	}
 
 	public String keyToString() {
@@ -267,13 +266,6 @@ public class MessageState {
 
 	public long getFinal_time() {
 		return final_time;
-	}
-
-	/**
-	 * @return
-	 */
-	public SmppTime getFinalDate() {
-		return finalDate;
 	}
 
 	/**
@@ -288,6 +280,13 @@ public class MessageState {
 			logger.error("ParseException - this should be impossible");
 			finalDate = null;
 		}
+	}
+
+	/**
+	 * @return
+	 */
+	public SmppTime getFinalDate() {
+		return finalDate;
 	}
 
 	/**

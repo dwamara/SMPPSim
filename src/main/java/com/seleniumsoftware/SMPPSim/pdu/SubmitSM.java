@@ -27,10 +27,10 @@
 
 package com.seleniumsoftware.SMPPSim.pdu;
 
+import com.seleniumsoftware.SMPPSim.pdu.util.PduUtilities;
+
 import java.util.ArrayList;
 import java.util.logging.Logger;
-
-import com.seleniumsoftware.SMPPSim.pdu.util.*;
 
 public class SubmitSM extends Request implements Demarshaller {
 
@@ -44,13 +44,13 @@ public class SubmitSM extends Request implements Demarshaller {
 
 	private int source_addr_npi;
 
-	private String source_addr="";
+	private String source_addr = "";
 
 	private int dest_addr_ton;
 
 	private int dest_addr_npi;
 
-	private String destination_addr="";
+	private String destination_addr = "";
 
 	private int esm_class;
 
@@ -58,9 +58,9 @@ public class SubmitSM extends Request implements Demarshaller {
 
 	private int priority_flag;
 
-	private String schedule_delivery_time="";
+	private String schedule_delivery_time = "";
 
-	private String validity_period="";
+	private String validity_period = "";
 
 	private int registered_delivery_flag;
 
@@ -72,7 +72,7 @@ public class SubmitSM extends Request implements Demarshaller {
 
 	private int sm_length;
 
-	private byte [] short_message;
+	private byte[] short_message;
 
 	// Optional PDU attributes
 	private ArrayList<Tlv> optionals = new ArrayList<Tlv>();
@@ -126,7 +126,7 @@ public class SubmitSM extends Request implements Demarshaller {
 		inx = inx + 1;
 		short_message = new byte[sm_length];
 		if (sm_length > 0) {
-			System.arraycopy(request, inx,	short_message, 0, sm_length);
+			System.arraycopy(request, inx, short_message, 0, sm_length);
 		}
 
 		// Now process optional parameters if there are any
@@ -146,261 +146,10 @@ public class SubmitSM extends Request implements Demarshaller {
 					inx++;
 				}
 				optionals.add(new Tlv(tag, oplen, value));
-			} else
-				optionals.add(new  TlvEmpty(tag,oplen));
+			} else {
+				optionals.add(new TlvEmpty(tag, oplen));
+			}
 		}
-	}
-
-	/**
-	 * @return
-	 */
-	public int getData_coding() {
-		return data_coding;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getDest_addr_npi() {
-		return dest_addr_npi;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getDest_addr_ton() {
-		return dest_addr_ton;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getDestination_addr() {
-		return destination_addr;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getEsm_class() {
-		return esm_class;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getPriority_flag() {
-		return priority_flag;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getProtocol_ID() {
-		return protocol_ID;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getRegistered_delivery_flag() {
-		return registered_delivery_flag;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getReplace_if_present_flag() {
-		return replace_if_present_flag;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getSchedule_delivery_time() {
-		return schedule_delivery_time;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getService_type() {
-		return service_type;
-	}
-
-	/**
-	 * @return
-	 */
-	public byte [] getShort_message() {
-		return short_message;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getSm_default_msg_id() {
-		return sm_default_msg_id;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getSm_length() {
-		return sm_length;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getSource_addr() {
-		return source_addr;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getSource_addr_npi() {
-		return source_addr_npi;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getSource_addr_ton() {
-		return source_addr_ton;
-	}
-
-	/**
-	 * @return
-	 */
-	public String getValidity_period() {
-		return validity_period;
-	}
-
-	/**
-	 * @param i
-	 */
-	public void setData_coding(int i) {
-		data_coding = i;
-	}
-
-	/**
-	 * @param i
-	 */
-	public void setDest_addr_npi(int i) {
-		dest_addr_npi = i;
-	}
-
-	/**
-	 * @param i
-	 */
-	public void setDest_addr_ton(int i) {
-		dest_addr_ton = i;
-	}
-
-	/**
-	 * @param string
-	 */
-	public void setDestination_addr(String string) {
-		destination_addr = string;
-	}
-
-	/**
-	 * @param i
-	 */
-	public void setEsm_class(int i) {
-		esm_class = i;
-	}
-
-	/**
-	 * @param i
-	 */
-	public void setPriority_flag(int i) {
-		priority_flag = i;
-	}
-
-	/**
-	 * @param i
-	 */
-	public void setProtocol_ID(int i) {
-		protocol_ID = i;
-	}
-
-	/**
-	 * @param i
-	 */
-	public void setRegistered_delivery_flag(int i) {
-		registered_delivery_flag = i;
-	}
-
-	/**
-	 * @param i
-	 */
-	public void setReplace_if_present_flag(int i) {
-		replace_if_present_flag = i;
-	}
-
-	/**
-	 * @param string
-	 */
-	public void setSchedule_delivery_time(String string) {
-		schedule_delivery_time = string;
-	}
-
-	/**
-	 * @param string
-	 */
-	public void setService_type(String string) {
-		service_type = string;
-	}
-
-	/**
-	 * @param string
-	 */
-	public void setShort_message(byte [] msg) {
-		short_message = msg;
-	}
-
-	/**
-	 * @param i
-	 */
-	public void setSm_default_msg_id(int i) {
-		sm_default_msg_id = i;
-	}
-
-	/**
-	 * @param i
-	 */
-	public void setSm_length(int i) {
-		sm_length = i;
-	}
-
-	/**
-	 * @param string
-	 */
-	public void setSource_addr(String string) {
-		source_addr = string;
-	}
-
-	/**
-	 * @param i
-	 */
-	public void setSource_addr_npi(int i) {
-		source_addr_npi = i;
-	}
-
-	/**
-	 * @param i
-	 */
-	public void setSource_addr_ton(int i) {
-		source_addr_ton = i;
-	}
-
-	/**
-	 * @param string
-	 */
-	public void setValidity_period(String string) {
-		validity_period = string;
 	}
 
 	public String toString() {
@@ -419,8 +168,9 @@ public class SubmitSM extends Request implements Demarshaller {
 				+ replace_if_present_flag + "," + "data_coding=" + data_coding
 				+ "," + "sm_default_msg_id=" + sm_default_msg_id + ","
 				+ "sm_length=" + sm_length + "," + "short_message=");
-				if (sm_length > 0)
-				    sb.append(new String(short_message));
+		if (sm_length > 0) {
+			sb.append(new String(short_message));
+		}
 		if (optionals.size() > 0) {
 			for (int i = 0; i < optionals.size(); i++) {
 				sb.append("," + optionals.get(i).toString());
@@ -429,8 +179,264 @@ public class SubmitSM extends Request implements Demarshaller {
 		return sb.toString();
 	}
 
+	/**
+	 * @return
+	 */
+	public int getData_coding() {
+		return data_coding;
+	}
+
+	/**
+	 * @param i
+	 */
+	public void setData_coding(int i) {
+		data_coding = i;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getDest_addr_npi() {
+		return dest_addr_npi;
+	}
+
+	/**
+	 * @param i
+	 */
+	public void setDest_addr_npi(int i) {
+		dest_addr_npi = i;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getDest_addr_ton() {
+		return dest_addr_ton;
+	}
+
+	/**
+	 * @param i
+	 */
+	public void setDest_addr_ton(int i) {
+		dest_addr_ton = i;
+	}
+
+	/**
+	 * @return
+	 */
+	public String getDestination_addr() {
+		return destination_addr;
+	}
+
+	/**
+	 * @param string
+	 */
+	public void setDestination_addr(String string) {
+		destination_addr = string;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getEsm_class() {
+		return esm_class;
+	}
+
+	/**
+	 * @param i
+	 */
+	public void setEsm_class(int i) {
+		esm_class = i;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getPriority_flag() {
+		return priority_flag;
+	}
+
+	/**
+	 * @param i
+	 */
+	public void setPriority_flag(int i) {
+		priority_flag = i;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getProtocol_ID() {
+		return protocol_ID;
+	}
+
+	/**
+	 * @param i
+	 */
+	public void setProtocol_ID(int i) {
+		protocol_ID = i;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getRegistered_delivery_flag() {
+		return registered_delivery_flag;
+	}
+
+	/**
+	 * @param i
+	 */
+	public void setRegistered_delivery_flag(int i) {
+		registered_delivery_flag = i;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getReplace_if_present_flag() {
+		return replace_if_present_flag;
+	}
+
+	/**
+	 * @param i
+	 */
+	public void setReplace_if_present_flag(int i) {
+		replace_if_present_flag = i;
+	}
+
+	/**
+	 * @return
+	 */
+	public String getSchedule_delivery_time() {
+		return schedule_delivery_time;
+	}
+
+	/**
+	 * @param string
+	 */
+	public void setSchedule_delivery_time(String string) {
+		schedule_delivery_time = string;
+	}
+
+	/**
+	 * @return
+	 */
+	public String getService_type() {
+		return service_type;
+	}
+
+	/**
+	 * @param string
+	 */
+	public void setService_type(String string) {
+		service_type = string;
+	}
+
+	/**
+	 * @return
+	 */
+	public byte[] getShort_message() {
+		return short_message;
+	}
+
+	/**
+	 * @param string
+	 */
+	public void setShort_message(byte[] msg) {
+		short_message = msg;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getSm_default_msg_id() {
+		return sm_default_msg_id;
+	}
+
+	/**
+	 * @param i
+	 */
+	public void setSm_default_msg_id(int i) {
+		sm_default_msg_id = i;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getSm_length() {
+		return sm_length;
+	}
+
+	/**
+	 * @param i
+	 */
+	public void setSm_length(int i) {
+		sm_length = i;
+	}
+
+	/**
+	 * @return
+	 */
+	public String getSource_addr() {
+		return source_addr;
+	}
+
+	/**
+	 * @param string
+	 */
+	public void setSource_addr(String string) {
+		source_addr = string;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getSource_addr_npi() {
+		return source_addr_npi;
+	}
+
+	/**
+	 * @param i
+	 */
+	public void setSource_addr_npi(int i) {
+		source_addr_npi = i;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getSource_addr_ton() {
+		return source_addr_ton;
+	}
+
+	/**
+	 * @param i
+	 */
+	public void setSource_addr_ton(int i) {
+		source_addr_ton = i;
+	}
+
+	/**
+	 * @return
+	 */
+	public String getValidity_period() {
+		return validity_period;
+	}
+
+	/**
+	 * @param string
+	 */
+	public void setValidity_period(String string) {
+		validity_period = string;
+	}
+
 	public ArrayList<Tlv> getOptionals() {
 		return optionals;
+	}
+
+	public void setOptionals(ArrayList<Tlv> optionals) {
+		this.optionals = optionals;
 	}
 
 	public Tlv getOptional(short tag) {
@@ -441,11 +447,7 @@ public class SubmitSM extends Request implements Demarshaller {
 		}
 		return null;
 	}
-	
-	public void setOptionals(ArrayList<Tlv> optionals) {
-		this.optionals = optionals;
-	}
-	
+
 	public Tlv getUssd_service_op() {
 		for (Tlv tlv : optionals) {
 			if (tlv.getTag() == PduConstants.USSD_SERVICE_OP) {
@@ -454,5 +456,5 @@ public class SubmitSM extends Request implements Demarshaller {
 		}
 		return null;
 	}
-	
+
 }

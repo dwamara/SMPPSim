@@ -26,6 +26,7 @@
  ****************************************************************************/
 
 package com.seleniumsoftware.SMPPSim.pdu;
+
 import com.seleniumsoftware.SMPPSim.pdu.util.PduUtilities;
 
 public class CancelSMResp extends Response implements Marshaller {

@@ -1,18 +1,17 @@
 package com.seleniumsoftware.examples;
 
-import com.seleniumsoftware.SMPPSim.SMPPSim;
-import java.io.ByteArrayOutputStream;
+import org.slf4j.LoggerFactory;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-import org.slf4j.LoggerFactory;
 
 public class CallbackHandler implements Runnable {
 
-    private static org.slf4j.Logger logger = LoggerFactory.getLogger(CallbackHandler.class);
+	private static org.slf4j.Logger logger = LoggerFactory.getLogger(CallbackHandler.class);
 //	private static Logger logger = Logger.getLogger("com.seleniumsoftware.examples");
 
 	ServerSocket ss;
@@ -71,10 +70,11 @@ public class CallbackHandler implements Runnable {
 			{
 				try {
 					readPacketInto(is);
-					if (isReceived(message))
+					if (isReceived(message)) {
 						receiver.received(message);
-					else
+					} else {
 						receiver.sent(message);
+					}
 				} catch (SocketException se) {
 					logger
 							.info("Socket exception: probably connection closed by client without error");
@@ -132,14 +132,14 @@ public class CallbackHandler implements Runnable {
 		return len;
 	}
 
+	private boolean isReceived(byte[] message) {
+		return (message[4] == 0x01);
+	}
+
 	private static final int getBytesAsInt(byte i_byte) {
 		return i_byte & 0xff;
 	}
 
-	private boolean isReceived(byte[] message) {
-		return (message[4] == 0x01);
-	}
-	
 	public void setRunning(boolean state) {
 		running = state;
 	}

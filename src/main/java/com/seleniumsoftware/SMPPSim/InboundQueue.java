@@ -28,48 +28,49 @@
 package com.seleniumsoftware.SMPPSim;
 
 import com.seleniumsoftware.SMPPSim.exceptions.InboundQueueFullException;
-import com.seleniumsoftware.SMPPSim.pdu.*;
-import com.seleniumsoftware.SMPPSim.util.*;
-import java.util.*;
+import com.seleniumsoftware.SMPPSim.pdu.DataSM;
+import com.seleniumsoftware.SMPPSim.pdu.DeliverSM;
+import com.seleniumsoftware.SMPPSim.pdu.DeliveryReceipt;
+import com.seleniumsoftware.SMPPSim.pdu.Pdu;
+import com.seleniumsoftware.SMPPSim.pdu.PduConstants;
+import com.seleniumsoftware.SMPPSim.util.LoggingUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+
 public class InboundQueue implements Runnable {
 
-    private static Logger logger = LoggerFactory.getLogger(DeterministicLifeCycleManager.class);
+	private static Logger logger = LoggerFactory.getLogger(DeterministicLifeCycleManager.class);
 //	private static Logger logger = Logger
 //			.getLogger("com.seleniumsoftware.smppsim");
-
-	private Smsc smsc = Smsc.getInstance();
-	
 	private static InboundQueue iqueue;
-	
 	private static DelayedInboundQueue diqueue;
-
 	ArrayList<Pdu> inbound_queue;
-
 	// we're waiting for a DELIVER_SM_RESP for each PDU in this queue. Depending on the command_status we then
 	// either put the message into the delayed_inbound_queue or we simply delete it.
 	ArrayList<Pdu> response_queue;
-
 	// If no receiver session, message goes in the pending queue
 	ArrayList<Pdu> pending_queue = new ArrayList<Pdu>();
+	private Smsc smsc = Smsc.getInstance();
+
+	private InboundQueue(int maxsize) {
+		inbound_queue = new ArrayList<Pdu>(maxsize);
+		response_queue = new ArrayList<Pdu>(maxsize);
+	}
 
 	public static InboundQueue getInstance() {
-		if (iqueue == null)
+		if (iqueue == null) {
 			iqueue = new InboundQueue(SMPPSim.getInbound_queue_capacity());
+		}
 		return iqueue;
-	}
-	
-	private InboundQueue(int maxsize) {
-		inbound_queue = new ArrayList<Pdu>(maxsize);		
-		response_queue = new ArrayList<Pdu>(maxsize);		
 	}
 
 	public void addMessage(Pdu message) throws InboundQueueFullException {
 		synchronized (inbound_queue) {
-			if (inbound_queue.size() >= smsc.getInbound_queue_capacity())
+			if (inbound_queue.size() >= smsc.getInbound_queue_capacity()) {
 				throw new InboundQueueFullException();
+			}
 			logger.debug("InboundQueue: adding object to queue<"
 					+ message.toString() + ">");
 			inbound_queue.add(message);
@@ -80,13 +81,13 @@ public class InboundQueue implements Runnable {
 	}
 
 	public void deliveryResult(int seqno, int command_status) {
-		logger.debug("MO message delivery attempted: seqno="+seqno+",status="+command_status+",responses pending="+response_queue.size());
+		logger.debug("MO message delivery attempted: seqno=" + seqno + ",status=" + command_status + ",responses pending=" + response_queue.size());
 		synchronized (response_queue) {
-			for (int i=0;i<response_queue.size();i++) {
+			for (int i = 0; i < response_queue.size(); i++) {
 				Pdu pdu = response_queue.get(i);
 				if (pdu.getSeq_no() == seqno) {
 					if (command_status == PduConstants.ESME_RMSGQFUL) {
-						logger.info("MO message "+seqno+" was rejected with queue full so putting in delayed inbound queue for retry");
+						logger.info("MO message " + seqno + " was rejected with queue full so putting in delayed inbound queue for retry");
 						diqueue.retryLater(pdu);
 					} else {
 						diqueue.deliveredOK(pdu);
@@ -96,40 +97,7 @@ public class InboundQueue implements Runnable {
 				}
 			}
 		}
-		logger.debug("Awaiting " + response_queue.size()+" responses");
-	}
-
-	public void removeMessage(Pdu m) {
-		removeMessage(m, inbound_queue);
-	}
-
-	public void removeMessage(Pdu m, ArrayList<Pdu> queue) {
-		logger.debug("Removing PDU from queue. Queue currently contains:"+queue.size());
-		for (int i=0;i<queue.size();i++) {
-			logger.debug(((Pdu) queue.get(i)).toString());
-		}
-		synchronized (queue) {
-			int i = queue.indexOf(m);
-			if (i > -1) {
-				queue.remove(i);
-			} else {
-				logger
-						.warn("Attempt to remove non-existent object from InboundQueue: "
-								+ m.toString());
-			}
-		}
-		logger.debug("Queue now contains:"+queue.size());
-	}
-
-	private Object[] getAllMessages() {
-		synchronized (inbound_queue) {
-			Object[] o = inbound_queue.toArray();
-			return o;
-		}
-	}
-
-	private boolean isEmpty() {
-		return inbound_queue.isEmpty();
+		logger.debug("Awaiting " + response_queue.size() + " responses");
 	}
 
 	public int size() {
@@ -179,14 +147,6 @@ public class InboundQueue implements Runnable {
 			processQueue();
 		} while (true);
 	}
-	
-	private void addPendingQueue(Pdu mo) {
-		pending_queue.add(mo);	
-		if (SMPPSim.isOutbind_enabled() && !smsc.isOutbind_sent()) {
-			smsc.outbind();
-			// should reset the outbind_sent flag now ready for the next time
-		}
-	}
 
 	private void processQueue() {
 		StandardConnectionHandler receiver = null;
@@ -206,8 +166,8 @@ public class InboundQueue implements Runnable {
 						//logger.info("InboundQueue: no available receiver sessions - moving message(s) to pending queue");
 						int pc = 0;
 						synchronized (pending_queue) {
-							Object [] active_pdus = inbound_queue.toArray();
-							for (int i=0;i<active_pdus.length;i++) {
+							Object[] active_pdus = inbound_queue.toArray();
+							for (int i = 0; i < active_pdus.length; i++) {
 								Pdu mo = (Pdu) active_pdus[i];
 								addPendingQueue(mo);
 								removeMessage(mo);
@@ -215,7 +175,7 @@ public class InboundQueue implements Runnable {
 							}
 						}
 						//logger.info("Moved " + pc
-								//+ " MO messages to the pending queue");
+						//+ " MO messages to the pending queue");
 
 					}
 					inbound_queue.wait();
@@ -234,7 +194,7 @@ public class InboundQueue implements Runnable {
 			boolean continuing = true;
 			while (i < pduCount && continuing) {
 				if (pdus[i] instanceof DeliverSM) {
-					continuing = processDeliverSM((DeliverSM) pdus[i], receiver,inbound_queue);
+					continuing = processDeliverSM((DeliverSM) pdus[i], receiver, inbound_queue);
 				} else {
 					continuing = processDataSM((DataSM) pdus[i], receiver);
 				}
@@ -243,12 +203,34 @@ public class InboundQueue implements Runnable {
 		}
 	}
 
+	private boolean isEmpty() {
+		return inbound_queue.isEmpty();
+	}
 
-	protected boolean processDeliverSM(DeliverSM pdu, StandardConnectionHandler receiver, ArrayList <Pdu> from_queue) {
+	private void addPendingQueue(Pdu mo) {
+		pending_queue.add(mo);
+		if (SMPPSim.isOutbind_enabled() && !smsc.isOutbind_sent()) {
+			smsc.outbind();
+			// should reset the outbind_sent flag now ready for the next time
+		}
+	}
+
+	public void removeMessage(Pdu m) {
+		removeMessage(m, inbound_queue);
+	}
+
+	private Object[] getAllMessages() {
+		synchronized (inbound_queue) {
+			Object[] o = inbound_queue.toArray();
+			return o;
+		}
+	}
+
+	protected boolean processDeliverSM(DeliverSM pdu, StandardConnectionHandler receiver, ArrayList<Pdu> from_queue) {
 		String pduName;
 		byte[] message;
-		boolean delivery_receipt=false;
-		
+		boolean delivery_receipt = false;
+
 		if (pdu instanceof DeliveryReceipt) {
 			pduName = "DELIVER_SM (receipt):";
 			delivery_receipt = true;
@@ -299,13 +281,13 @@ public class InboundQueue implements Runnable {
 					 * Should only remove from the queue if we didn't get a response of ESME_RMSGQFUL
 					 * Right now we don't know what the response was in this code... so removal needs to be
 					 * triggered asynchronously by receipt of a DELIVER_SM_RESP in the protocol handler
-					 * 
+					 *
 					 * Sequence number matching required of course.
-					 * 
+					 *
 					 */
 					synchronized (response_queue) {
 						response_queue.add(pdu);
-						logger.debug("Added message "+pdu.getSeq_no()+" to response queue");
+						logger.debug("Added message " + pdu.getSeq_no() + " to response queue");
 					}
 					removeMessage(pdu, from_queue);
 				} catch (Exception e) {
@@ -320,14 +302,15 @@ public class InboundQueue implements Runnable {
 	}
 
 	protected boolean processDataSM(DataSM pdu,
-			StandardConnectionHandler receiver) {
+	                                StandardConnectionHandler receiver) {
 		byte[] message;
 
 		try {
 			message = pdu.marshall();
 			LoggingUtilities.hexDump("DATA_SM:", message, message.length);
-			if (smsc.isDecodePdus())
+			if (smsc.isDecodePdus()) {
 				LoggingUtilities.logDecodedPdu(pdu);
+			}
 			logger.info(" ");
 			receiver = smsc.selectReceiver(pdu.getDestination_addr());
 			if (receiver == null) {
@@ -355,11 +338,28 @@ public class InboundQueue implements Runnable {
 		return true;
 	}
 
+	public void removeMessage(Pdu m, ArrayList<Pdu> queue) {
+		logger.debug("Removing PDU from queue. Queue currently contains:" + queue.size());
+		for (int i = 0; i < queue.size(); i++) {
+			logger.debug(((Pdu) queue.get(i)).toString());
+		}
+		synchronized (queue) {
+			int i = queue.indexOf(m);
+			if (i > -1) {
+				queue.remove(i);
+			} else {
+				logger
+						.warn("Attempt to remove non-existent object from InboundQueue: "
+								+ m.toString());
+			}
+		}
+		logger.debug("Queue now contains:" + queue.size());
+	}
+
 	/**
 	 * Called when a receiver or transceiver session is established. Results in any MO messages for which a session
 	 * was not available originally and which were set to one side in the pending queue, being delivered if the new session
 	 * is suitable.
-	 *
 	 */
 	public void deliverPendingMoMessages() {
 		Object[] messages = null;
@@ -370,8 +370,9 @@ public class InboundQueue implements Runnable {
 
 		for (int i = 0; i < l; i++) {
 			boolean ok = processDeliverSM((DeliverSM) messages[i], null, pending_queue);
-			if (!ok)
+			if (!ok) {
 				break;
+			}
 		}
 
 		// reset the outbind flag ready for the next time

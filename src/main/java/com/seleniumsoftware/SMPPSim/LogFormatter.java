@@ -26,9 +26,10 @@
  ****************************************************************************/
 
 package com.seleniumsoftware.SMPPSim;
-import java.util.logging.*;
-import java.text.*;
-import java.util.*;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.logging.LogRecord;
 
 
 public class LogFormatter extends java.util.logging.Formatter {
@@ -42,10 +43,10 @@ public class LogFormatter extends java.util.logging.Formatter {
 		StringBuffer buf = new StringBuffer();
 		long logTime = rec.getMillis();
 		Date logDate = new Date(logTime);
-		String dateTime = (df.format(logDate)+"  ").substring(0,23);
+		String dateTime = (df.format(logDate) + "  ").substring(0, 23);
 		buf.append(dateTime);
 		buf.append(" ");
-		buf.append((rec.getLevel().getName()+"      ").substring(0,7));
+		buf.append((rec.getLevel().getName() + "      ").substring(0, 7));
 		buf.append(" ");
 		buf.append(rec.getThreadID());
 		buf.append(" ");
