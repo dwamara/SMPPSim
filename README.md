@@ -19,3 +19,6 @@ All credential information is in the conf/smppsim.props
 the smpp-lib may not be downloaded, please get the maven dependency 
 in the conf/ folder and put it into your local maven repository:
 /.m2/respository/smpp/smpp-lib
+
+
+This fork will be updated to use JDK 8
